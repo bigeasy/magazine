@@ -9,9 +9,13 @@ before_install:
   - npm install
   - npm install istanbul coveralls
 before_script:
-  - gem install travis-artifacts
+  - gem install s3cmd
 after_success:
-  - travis-artifacts upload --path coverage --target-path coverage/`echo $TRAVIS_REPO_SLUG | sed 's/[^\/]\+\///'`/$TRAVIS_BUILD_ID/$TRAVIS_JOB_ID
+  - echo '[default]' > ~/.s3cfg
+  - chmod 600 ~/.s3cfg
+  - echo "access_key = $ARTIFACTS_AWS_ACCESS_KEY_ID" >> ~/.s3cfg
+  - echo "secret_key = $ARTIFACTS_AWS_SECRET_ACCESS_KEY" >> ~/.s3cfg
+  - s3cmd sync ./coverage/ s3://bigeasy/coverage/magazine/$TRAVIS_BUILD_ID/$TRAVIS_JOB_ID
 env:
   global:
   - "ARTIFACTS_AWS_REGION=us-east-1"
