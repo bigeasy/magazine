@@ -1,0 +1,33 @@
+{
+    "name":         "magazine",
+    "version":      "0.0.0",
+    "description":  "A collective least-recently used cache.",
+    "author":       "Alan Gutierrez <alan@prettyrobots.com>",
+    "homepage":     "https://bigeasy.github.io/magazine",
+    "bugs":         "https://github.com/bigeasy/magazine/issues",
+    "keywords":
+    [
+                    "lru", "cache", "weak", "magazine", "database"
+    ],
+    "contributors":
+    [
+    ],
+    "devDependencies":
+    {
+                    "proof": "0.0.34"
+    },
+    "scripts":
+    {
+                    "test": "proof platform win32 && proof test */*/*.t.js || t/test"
+    },
+    "licenses":
+    [{
+                    "type": "MIT",
+                    "url": "http://github.com/bigeasy/magazine/raw/master/LICENSE"
+    }],
+    "repository":
+    {
+                    "type": "git",
+                    "url": "http://github.com/bigeasy/magazine.git"
+    }
+}
