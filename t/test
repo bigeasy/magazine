@@ -2,13 +2,6 @@
 
 set -e
 
-if [ "$TRAVIS" = "true" ]; then
-  echo '$ sudo apt-get install bc' && echo ''
-  sudo apt-get install -q -q bc 2> /dev/null > /dev/null
-fi
-
-t/sizes index.js | sed 's/^/    /'
-
 echo ""
 
 (proof run t/*/*.t.js | tee .proof.out | proof progress) || (proof errors < .proof.out) || exit 1
@@ -28,22 +21,6 @@ if [ "$TRAVIS" = "true" ] || [ "$MINIFY" = "true" ]; then
   chmod 600 ~/.ssh/id_travisty
   cat t/known_hosts >> ~/.ssh/known_hosts
   ssh -i ~/.ssh/id_travisty alan@prettyrobots.com /home/alan/travisty < ~/coverage.tar.gz
-
-  echo ""
-  echo "minified"
-  echo ""
-  default=$(cat index.js | uglifyjs | gzip -c | wc -c)
-  lift=$(cat index.js | uglifyjs --lift-vars | gzip -c | wc -c)
-
-  bak=index-$(date +'%FT%T').js
-  mv index.js $bak
-  if [ $default -lt $lift ]; then
-    cat $bak | uglifyjs > index.js
-  else
-    cat $bak | uglifyjs --lift-vars > index.js
-  fi
-
-  (proof run t/*/*.t.js | tee .proof.out | proof progress) || (proof errors < .proof.out) || exit 1
 fi
 
 echo ""
