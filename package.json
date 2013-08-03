@@ -18,7 +18,7 @@
     },
     "scripts":
     {
-                    "test": "proof platform win32 && proof test */*/*.t.js || t/test"
+                    "test": "proof platform win32 && proof test */*/*.t.* || t/test"
     },
     "licenses":
     [{
