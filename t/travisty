@@ -31,7 +31,7 @@ bOBqc3C2idI/oULAwACT8fdTILYLMQAyoe+osflF/JX+/EHyo4vBuy2jfDC0ICT1GQqGOwB+XFtf
 OJ2eFn+IFe9seroMDQZtqA0p5dA+cq8Qrtfcct2yjIpAN81Kt5AqsgbwAuvVopYGF3018+uoGlBM
 7yR5Uw==
 __EOM__
-gpg --passphrase-file ~/.passphrase.txt --decrypt t/id_travisty.gpg > ~/.ssh/id_travisty
+gpg --passphrase-file ~/.passphrase.txt --decrypt ~/id_travisty.gpg > ~/.ssh/id_travisty
 chmod 600 ~/.ssh/id_travisty
 base64 --decode << '__EOM__' >> ~/.ssh/known_hosts
 cHJldHR5cm9ib3RzLmNvbSBzc2gtcnNhIEFBQUFCM056YUMxeWMyRUFBQUFEQVFBQkFBQUJBUUN5
