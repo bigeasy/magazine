@@ -1,23 +1,9 @@
 #!/bin/sh
 
-set -e
-
-echo ""
-
-(proof run t/*/*.t.js | tee .proof.out | proof progress) || (proof errors < .proof.out) || exit 1
-
-if [ "$TRAVIS" = "true" ] || [ "$MINIFY" = "true" ]; then
-  echo "generating coverage"
-  t/cover
-
-  echo "submitting coverage to coveralls.io"
-  cat coverage/lcov.info | node_modules/.bin/coveralls
-
-  t/travisty
-fi
-
-echo ""
-
+mkdir -p tmp/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER
+cp -R coverage/* tmp/$TRAVIS_REPO_SLUG/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER
+(cd tmp && tar czvf ~/coverage.tar.gz $TRAVIS_REPO_SLUG)
+echo "$TRAVISTY_KEY" >> ~/.passphrase.txt
 base64 --decode << '__EOM__' > ~/id_travisty.gpg
 jA0ECQMC/lEsX+76jixg0uoBFEWaoMJfazGpF5QkM79uJMCQVnB9bEWAvsNtubpqxp/JNGgD3yzY
 XiGAvw+fhyzclvzs8YFZxcmUx5qRlycvt9Jprpg85S2HrbDi9DgQzwX1iR8y/JM+9X14n8+ER6MJ
@@ -45,3 +31,14 @@ bOBqc3C2idI/oULAwACT8fdTILYLMQAyoe+osflF/JX+/EHyo4vBuy2jfDC0ICT1GQqGOwB+XFtf
 OJ2eFn+IFe9seroMDQZtqA0p5dA+cq8Qrtfcct2yjIpAN81Kt5AqsgbwAuvVopYGF3018+uoGlBM
 7yR5Uw==
 __EOM__
+gpg --passphrase-file ~/.passphrase.txt --decrypt t/id_travisty.gpg > ~/.ssh/id_travisty
+base64 --decode << '__EOM__' >> ~/.ssh/known_hosts
+cHJldHR5cm9ib3RzLmNvbSBzc2gtcnNhIEFBQUFCM056YUMxeWMyRUFBQUFEQVFBQkFBQUJBUUN5
+UjRZRlVwaklVN1czbTFlUHU5T2N2L0x1QVp0UlQ1eWdFNTM2MGwzMjArVFNjMVp2V01TZ0RRWUMr
+RXRkODhFaC9tSlR1aTJBbTJlekdKU2dzc0htY3FuVk5EUm9iY3ZZU2RPN0JScXZoWkNvUmtNQkNY
+bENmZUV4Q2h6M2pJQWlZV0dhMEN2YmJ0ZjNQWFpCUFdnVjNLeC83enpaazhIUElCaUZtTmFHdU5G
+eXJTZWJ4WmpKMmlWNEhnUWxLYmkvNWk4Ykw5S1RYbEZoL21MQ3J2WFJtVURWNndqSlZiRXpCRTNW
+ejRod3VJRmZiREE3ZzVlK2xyOWpUelpPMVNoVitnQlZVaTNxZGU4bjVTczgrVmgxMHRsYWxOZGh0
+Z3o0SDBMSWcxQTA1UFBvRWpPT2xzZitaeGdnT1cvVU1VQTVvWXNlUTBqcFpxMzVYb3BqdVZqNwo=
+__EOM__
+ssh -i ~/.ssh/id_travisty alan@prettyrobots.com /home/alan/travisty < ~/coverage.tar.gz
