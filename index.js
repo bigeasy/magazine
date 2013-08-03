@@ -40,9 +40,9 @@ function Magazine (cache, key) {
 
 Magazine.prototype.lock = function (key, defaultValue) {
     var compoundKey = this._key + key
-    var cartridge = this._cache[compoundKey]
+    var cartridge = this._cache._cache[compoundKey]
     if (!cartridge) {
-        cartridge = this._cache[compoundKey] = new Cartridge(this, defaultValue, compoundKey)
+        cartridge = this._cache._cache[compoundKey] = new Cartridge(this, defaultValue, compoundKey)
     } else {
         cartridge._prev._next = cartridge._next
         cartridge._next._prev = cartridge._prev
@@ -55,17 +55,17 @@ Magazine.prototype.lock = function (key, defaultValue) {
     return cartridge
 }
 
-Magazine.prototype.purge = function (key) {
+Magazine.prototype.remove = function (key) {
     var compoundKey = this._key + key
-    var cartridge = this._cache[compoundKey]
+    var cartridge = this._cache._cache[compoundKey]
     if (cartridge) {
         if (cartridge._locks) {
-            throw new Error('attempt to purge locked cartridge')
+            throw new Error('attempt to remove locked cartridge')
         }
         this._cache.heft -= cartridge._heft
         cartridge._prev._next = cartridge._next
         cartridge._next._prev = cartridge._prev
-        delete cache[compoundKey]
+        delete this._cache._cache[compoundKey]
     }
 }
 
