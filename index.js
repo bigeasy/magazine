@@ -12,8 +12,7 @@ function Cache (constructor) {
 }
 
 Cache.prototype.createMagazine = function () {
-    var key = ++this._key
-    this._cache[key] = {}
+    var key = ':' + (++this._key) + ':'
     return new Magazine(this, key)
 }
 
@@ -27,7 +26,7 @@ Cache.prototype.purge = function (downTo) {
             this._heft -= cartridge._heft
             cartridge._prev._next = cartridge._next
             cartridge._next._prev = cartridge._prev
-            delete this._cache[cartridge._key[0]][cartridge._key[1]]
+            delete this._cache[cartridge._key]
         } else {
             iterator = cartridge
         }
@@ -40,10 +39,10 @@ function Magazine (cache, key) {
 }
 
 Magazine.prototype.lock = function (key, defaultValue) {
-    var cache = this._cache._cache[this._key]
-    var cartridge = cache[key]
+    var compoundKey = this._key + key
+    var cartridge = this._cache[compoundKey]
     if (!cartridge) {
-        cartridge = cache[key] = new Cartridge(this, defaultValue, [ this._key, key ])
+        cartridge = this._cache[compoundKey] = new Cartridge(this, defaultValue, compoundKey)
     } else {
         cartridge._prev._next = cartridge._next
         cartridge._next._prev = cartridge._prev
@@ -57,8 +56,8 @@ Magazine.prototype.lock = function (key, defaultValue) {
 }
 
 Magazine.prototype.purge = function (key) {
-    var cache = this._cache._cache[this._key]
-    var cartridge = cache[key]
+    var compoundKey = this._key + key
+    var cartridge = this._cache[compoundKey]
     if (cartridge) {
         if (cartridge._locks) {
             throw new Error('attempt to purge locked cartridge')
@@ -66,7 +65,7 @@ Magazine.prototype.purge = function (key) {
         this._cache._heft -= cartridge._heft
         cartridge._prev._next = cartridge._next
         cartridge._next._prev = cartridge._prev
-        delete cache[key]
+        delete cache[compoundKey]
     }
 }
 
