@@ -7,7 +7,7 @@ function Cache (constructor) {
     this._constructor = constructor
     this._cache = {}
     this._head = head
-    this._heft = 0
+    this.heft = 0
     this._key = 0
 }
 
@@ -20,10 +20,10 @@ Cache.prototype.purge = function (downTo) {
     downTo = Math.max(downTo, 0);
     var head = this._head
     var iterator = head
-    while (this._heft > downTo && iterator.previous !== head) {
+    while (this.heft > downTo && iterator.previous !== head) {
         var cartridge = iterator.previous
         if (!cartridge._locks) {
-            this._heft -= cartridge._heft
+            this.heft -= cartridge._heft
             cartridge._prev._next = cartridge._next
             cartridge._next._prev = cartridge._prev
             delete this._cache[cartridge._key]
@@ -62,7 +62,7 @@ Magazine.prototype.purge = function (key) {
         if (cartridge._locks) {
             throw new Error('attempt to purge locked cartridge')
         }
-        this._cache._heft -= cartridge._heft
+        this._cache.heft -= cartridge._heft
         cartridge._prev._next = cartridge._next
         cartridge._next._prev = cartridge._prev
         delete cache[compoundKey]
@@ -79,7 +79,7 @@ function Cartridge (magazine, defaultValue, path) {
 
 Cartridge.prototype.adjustHeft = function (heft) {
     this._heft += heft
-    this._magazine._cache._heft += heft
+    this._magazine._cache.heft += heft
 }
 
 Cartridge.prototype.unlock = function (heft) {
