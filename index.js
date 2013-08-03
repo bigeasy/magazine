@@ -86,7 +86,7 @@ Cartridge.prototype.adjustHeft = function (heft) {
 
 Cartridge.prototype.unlock = function (heft) {
     if (!this._locks) {
-        throw new Error('lock count off')
+        throw new Error('attempt to unlock unlocked cartridge')
     }
     this._locks--
 }

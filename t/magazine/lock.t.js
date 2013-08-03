@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('proof')(2, function (equal) {
+require('proof')(3, function (equal) {
     var Cache = require('../..')
     var cache = new Cache
     var magazine = cache.createMagazine('a')
@@ -13,4 +13,10 @@ require('proof')(2, function (equal) {
     var cartridge = magazine.lock(1, { number: 1 })
     equal(cartridge.value.number, 2, 'exists')
     cartridge.unlock()
+
+    try {
+        cartridge.unlock()
+    } catch (e) {
+        equal(e.message, 'attempt to unlock unlocked cartridge', 'unlock unlocked')
+    }
 })
