@@ -3,7 +3,7 @@
 require('proof')(3, function (equal) {
     var Cache = require('../..')
     var cache = new Cache
-    var magazine = cache.createMagazine('a')
+    var magazine = cache.createMagazine()
 
     var cartridge = magazine.lock(1, { number: 1 })
     equal(cartridge.value.number, 1, 'initialize')

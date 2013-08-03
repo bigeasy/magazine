@@ -8,12 +8,11 @@ function Cache (constructor) {
     this._cache = {}
     this._head = head
     this._heft = 0
+    this._key = 0
 }
 
-Cache.prototype.createMagazine = function (key) {
-    if (this._cache[key]) {
-        throw new Error('magazine already exists')
-    }
+Cache.prototype.createMagazine = function () {
+    var key = ++this._key
     this._cache[key] = {}
     return new Magazine(this, key)
 }
