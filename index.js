@@ -7,12 +7,13 @@ function Cache (constructor) {
     this._constructor = constructor
     this._cache = {}
     this._head = head
+    this._nextKey = 0
+
     this.heft = 0
-    this._key = 0
 }
 
 Cache.prototype.createMagazine = function () {
-    var key = ':' + (++this._key) + ':'
+    var key = ':' + (++this._nextKey) + ':'
     return new Magazine(this, key)
 }
 
@@ -20,8 +21,8 @@ Cache.prototype.purge = function (downTo) {
     downTo = Math.max(downTo, 0);
     var head = this._head
     var iterator = head
-    while (this.heft > downTo && iterator.previous !== head) {
-        var cartridge = iterator.previous
+    while (this.heft > downTo && iterator._prev !== head) {
+        var cartridge = iterator._prev
         if (!cartridge._locks) {
             this.heft -= cartridge._heft
             cartridge._prev._next = cartridge._next
