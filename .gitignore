@@ -1,3 +1,2 @@
 /node_modules
-/.proof.out
-/coverage
+*.edify~
