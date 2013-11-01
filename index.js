@@ -43,6 +43,9 @@ Magazine.prototype.hold = function (key, defaultValue) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
     if (!cartridge) {
+        if (typeof defaultValue == 'function') {
+            defaultValue = defaultValue()
+        }
         cartridge = this._cache._cache[compoundKey] = new Cartridge(this, defaultValue, compoundKey)
     } else {
         cartridge._prev._next = cartridge._next
