@@ -23,7 +23,7 @@ Cache.prototype.purge = function (downTo) {
     var iterator = head
     while (this.heft > downTo && iterator._prev !== head) {
         var cartridge = iterator._prev
-        if (!cartridge._locks) {
+        if (!cartridge._holds) {
             this.heft -= cartridge._heft
             cartridge._prev._next = cartridge._next
             cartridge._next._prev = cartridge._prev
@@ -39,7 +39,7 @@ function Magazine (cache, key) {
     this._key = key
 }
 
-Magazine.prototype.lock = function (key, defaultValue) {
+Magazine.prototype.hold = function (key, defaultValue) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
     if (!cartridge) {
@@ -52,7 +52,7 @@ Magazine.prototype.lock = function (key, defaultValue) {
     cartridge._prev = this._cache._head
     cartridge._next._prev = cartridge
     this._cache._head._next = cartridge
-    cartridge._locks++
+    cartridge._holds++
     return cartridge
 }
 
@@ -60,8 +60,8 @@ Magazine.prototype.remove = function (key) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
     if (cartridge) {
-        if (cartridge._locks) {
-            throw new Error('attempt to remove locked cartridge')
+        if (cartridge._holds) {
+            throw new Error('attempt to remove held cartridge')
         }
         this._cache.heft -= cartridge._heft
         cartridge._prev._next = cartridge._next
@@ -75,7 +75,7 @@ function Cartridge (magazine, defaultValue, path) {
     this._magazine = magazine
     this._path = path
     this._heft = 0
-    this._locks = 0
+    this._holds = 0
 }
 
 Cartridge.prototype.adjustHeft = function (heft) {
@@ -83,11 +83,11 @@ Cartridge.prototype.adjustHeft = function (heft) {
     this._magazine._cache.heft += heft
 }
 
-Cartridge.prototype.unlock = function (heft) {
-    if (!this._locks) {
-        throw new Error('attempt to unlock unlocked cartridge')
+Cartridge.prototype.release = function (heft) {
+    if (!this._holds) {
+        throw new Error('attempt to release cartridge not held')
     }
-    this._locks--
+    this._holds--
 }
 
 module.exports = Cache

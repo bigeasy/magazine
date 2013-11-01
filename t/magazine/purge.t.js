@@ -5,15 +5,15 @@ require('proof')(2, function (equal) {
     var cache = new Cache
     var magazine = cache.createMagazine()
 
-    var cartridge = magazine.lock(1, {})
+    var cartridge = magazine.hold(1, {})
     cartridge.value.number++
     cartridge.adjustHeft(1)
-    cartridge.unlock()
+    cartridge.release()
 
-    var cartridge = magazine.lock(2, {})
+    var cartridge = magazine.hold(2, {})
     cartridge.adjustHeft(1)
     equal(cache.heft, 2, 'cache full')
     cache.purge(0)
     equal(cache.heft, 1, 'cache purged')
-    cartridge.unlock()
+    cartridge.release()
 })

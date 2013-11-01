@@ -5,9 +5,9 @@ require('proof')(1, function (equal) {
     var cache = new Cache
     var magazine = cache.createMagazine()
 
-    var cartridge = magazine.lock(1, { number: 1 })
+    var cartridge = magazine.hold(1, { number: 1 })
     cartridge.adjustHeft(1)
-    cartridge.unlock()
+    cartridge.release()
 
     equal(cache.heft, 1, 'heft adjusted')
 })
