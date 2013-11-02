@@ -25,6 +25,7 @@ Cache.prototype.purge = function (downTo) {
         var cartridge = iterator._prev
         if (!cartridge._holds) {
             this.heft -= cartridge._heft
+            cartridge._magazine.heft -= cartridge._heft
             cartridge._prev._next = cartridge._next
             cartridge._next._prev = cartridge._prev
             delete this._cache[cartridge._key]
@@ -37,6 +38,7 @@ Cache.prototype.purge = function (downTo) {
 function Magazine (cache, key) {
     this._cache = cache
     this._key = key
+    this.heft = 0
 }
 
 Magazine.prototype.hold = function (key, defaultValue) {
@@ -83,10 +85,11 @@ function Cartridge (magazine, defaultValue, path) {
 
 Cartridge.prototype.adjustHeft = function (heft) {
     this._heft += heft
+    this._magazine.heft += heft
     this._magazine._cache.heft += heft
 }
 
-Cartridge.prototype.release = function (heft) {
+Cartridge.prototype.release = function () {
     if (!this._holds) {
         throw new Error('attempt to release cartridge not held')
     }
