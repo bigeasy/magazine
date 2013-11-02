@@ -61,6 +61,15 @@ Magazine.prototype.hold = function (key, defaultValue) {
     return cartridge
 }
 
+Magazine.prototype.get = function (key) {
+    var compoundKey = this._key + key
+    var cartridge = this._cache._cache[compoundKey]
+    if (!cartridge || !cartridge._holds) {
+        throw new Error('attempt to get a cartridge not held')
+    }
+    return cartridge
+}
+
 Magazine.prototype.remove = function (key) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
@@ -91,7 +100,7 @@ Cartridge.prototype.adjustHeft = function (heft) {
 
 Cartridge.prototype.release = function () {
     if (!this._holds) {
-        throw new Error('attempt to release cartridge not held')
+        throw new Error('attempt to release a cartridge not held')
     }
     this._holds--
 }

@@ -17,6 +17,6 @@ require('proof')(3, function (equal) {
     try {
         cartridge.release()
     } catch (e) {
-        equal(e.message, 'attempt to release cartridge not held', 'release not held')
+        equal(e.message, 'attempt to release a cartridge not held', 'release not held')
     }
 })
