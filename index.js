@@ -48,7 +48,7 @@ Cache.prototype.purge = function (downTo) {
             this.heft -= cartridge._heft
             cartridge._magazine.heft -= cartridge._heft
             unlink(cartridge)
-            delete this._cache[cartridge._key]
+            delete this._cache[cartridge._compoundKey]
         } else {
             iterator = cartridge
         }
@@ -114,17 +114,17 @@ Magazine.prototype.purge = function (downTo) {
             this.heft -= cartridge._heft
             this._cache.heft -= cartridge._heft
             unlink(cartridge)
-            delete this._cache._cache[cartridge._key]
+            delete this._cache._cache[cartridge._compoundKey]
         } else {
             iterator = cartridge
         }
     }
 }
 
-function Cartridge (magazine, defaultValue, path) {
+function Cartridge (magazine, defaultValue, compoundKey) {
     this.value = defaultValue
     this._magazine = magazine
-    this._path = path
+    this._compoundKey = compoundKey
     this._heft = 0
     this._holds = 0
 }
