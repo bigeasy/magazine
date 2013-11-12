@@ -31,6 +31,7 @@ function Cache (constructor) {
     this._nextKey = 0
 
     this.heft = 0
+    this.count = 0
 }
 
 Cache.prototype.createMagazine = function () {
@@ -50,6 +51,7 @@ Cache.prototype.purge = function (downTo) {
             unlink(cartridge)
             delete this._cache[cartridge._compoundKey]
             cartridge._magazine.count--
+            this.count--
         } else {
             iterator = cartridge
         }
@@ -76,6 +78,7 @@ Magazine.prototype.hold = function (key, defaultValue) {
         }
         cartridge = this._cache._cache[compoundKey] = new Cartridge(this, defaultValue, compoundKey)
         this.count++
+        this._cache.count++
     } else {
         unlink(cartridge)
     }
@@ -106,6 +109,7 @@ Magazine.prototype.remove = function (key) {
         unlink(cartridge)
         delete this._cache._cache[compoundKey]
         this.count--
+        this._cache.count--
     }
 }
 
@@ -121,6 +125,7 @@ Magazine.prototype.purge = function (downTo) {
             unlink(cartridge)
             delete this._cache._cache[cartridge._compoundKey]
             this.count--
+            this._cache.count--
         } else {
             iterator = cartridge
         }
