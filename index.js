@@ -45,8 +45,8 @@ Cache.prototype.purge = function (downTo) {
     while (this.heft > downTo && iterator._cachePrevious !== head) {
         var cartridge = iterator._cachePrevious
         if (!cartridge._holds) {
-            this.heft -= cartridge._heft
-            cartridge._magazine.heft -= cartridge._heft
+            this.heft -= cartridge.heft
+            cartridge._magazine.heft -= cartridge.heft
             unlink(cartridge)
             delete this._cache[cartridge._compoundKey]
         } else {
@@ -98,7 +98,7 @@ Magazine.prototype.remove = function (key) {
         if (cartridge._holds) {
             throw new Error('attempt to remove held cartridge')
         }
-        this._cache.heft -= cartridge._heft
+        this._cache.heft -= cartridge.heft
         unlink(cartridge)
         delete this._cache._cache[compoundKey]
     }
@@ -111,8 +111,8 @@ Magazine.prototype.purge = function (downTo) {
     while (this.heft > downTo && iterator._magazinePrevious !== head) {
         var cartridge = iterator._magazinePrevious
         if (!cartridge._holds) {
-            this.heft -= cartridge._heft
-            this._cache.heft -= cartridge._heft
+            this.heft -= cartridge.heft
+            this._cache.heft -= cartridge.heft
             unlink(cartridge)
             delete this._cache._cache[cartridge._compoundKey]
         } else {
@@ -125,12 +125,12 @@ function Cartridge (magazine, defaultValue, compoundKey) {
     this.value = defaultValue
     this._magazine = magazine
     this._compoundKey = compoundKey
-    this._heft = 0
+    this.heft = 0
     this._holds = 0
 }
 
 Cartridge.prototype.adjustHeft = function (heft) {
-    this._heft += heft
+    this.heft += heft
     this._magazine.heft += heft
     this._magazine._cache.heft += heft
 }
