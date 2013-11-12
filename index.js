@@ -49,6 +49,7 @@ Cache.prototype.purge = function (downTo) {
             cartridge._magazine.heft -= cartridge.heft
             unlink(cartridge)
             delete this._cache[cartridge._compoundKey]
+            cartridge._magazine.count--
         } else {
             iterator = cartridge
         }
@@ -63,6 +64,7 @@ function Magazine (cache, key) {
     this._key = key
     this._head = head
     this.heft = 0
+    this.count = 0
 }
 
 Magazine.prototype.hold = function (key, defaultValue) {
@@ -73,6 +75,7 @@ Magazine.prototype.hold = function (key, defaultValue) {
             defaultValue = defaultValue()
         }
         cartridge = this._cache._cache[compoundKey] = new Cartridge(this, defaultValue, compoundKey)
+        this.count++
     } else {
         unlink(cartridge)
     }
@@ -101,6 +104,7 @@ Magazine.prototype.remove = function (key) {
         this._cache.heft -= cartridge.heft
         unlink(cartridge)
         delete this._cache._cache[compoundKey]
+        this.count--
     }
 }
 
@@ -115,6 +119,7 @@ Magazine.prototype.purge = function (downTo) {
             this._cache.heft -= cartridge.heft
             unlink(cartridge)
             delete this._cache._cache[cartridge._compoundKey]
+            this.count--
         } else {
             iterator = cartridge
         }
