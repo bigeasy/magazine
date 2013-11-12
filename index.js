@@ -102,6 +102,7 @@ Magazine.prototype.remove = function (key) {
             throw new Error('attempt to remove held cartridge')
         }
         this._cache.heft -= cartridge.heft
+        this.heft -= cartridge.heft
         unlink(cartridge)
         delete this._cache._cache[compoundKey]
         this.count--
