@@ -1,6 +1,6 @@
 {
     "name":         "magazine",
-    "version":      "0.0.6",
+    "version":      "0.0.7",
     "description":  "A collective least-recently used cache.",
     "author":       "Alan Gutierrez <alan@prettyrobots.com>",
     "homepage":     "https://bigeasy.github.io/magazine",
