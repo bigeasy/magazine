@@ -8,7 +8,7 @@ A collective least-recently used cache.
 
     Install:        `npm install magazine`
 
-    License:        MIT
+    License:        LGPL 3.0
 
 To learn everything you want to know about Magazine start here:
 
