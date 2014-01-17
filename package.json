@@ -22,8 +22,8 @@
     },
     "licenses":
     [{
-                    "type": "GNU Affero GPL 3.0",
-                    "url": "http://github.com/bigeasy/magazine/raw/master/COPYING"
+                    "type": "MIT",
+                    "url": "http://github.com/bigeasy/magazine/raw/master/LICENSE"
     }],
     "repository":
     {
