@@ -39,13 +39,14 @@ Cache.prototype.createMagazine = function () {
     return new Magazine(this, key)
 }
 
-Cache.prototype.purge = function (downTo) {
+Cache.prototype.purge = function (downTo, condition) {
+    condition = condition || function () { return true }
     downTo = Math.max(downTo, -1);
     var head = this._head
     var iterator = head
     while (this.heft > downTo && iterator._cachePrevious !== head) {
         var cartridge = iterator._cachePrevious
-        if (!cartridge._holds) {
+        if (!cartridge._holds && condition(cartridge)) {
             this.heft -= cartridge.heft
             cartridge._magazine.heft -= cartridge.heft
             unlink(cartridge)
@@ -113,13 +114,14 @@ Magazine.prototype.remove = function (key) {
     }
 }
 
-Magazine.prototype.purge = function (downTo) {
+Magazine.prototype.purge = function (downTo, condition) {
+    condition = condition || function () { return true }
     downTo = Math.max(downTo, -1);
     var head = this._head
     var iterator = head
     while (this.heft > downTo && iterator._magazinePrevious !== head) {
         var cartridge = iterator._magazinePrevious
-        if (!cartridge._holds) {
+        if (!cartridge._holds && condition(cartridge)) {
             this.heft -= cartridge.heft
             this._cache.heft -= cartridge.heft
             unlink(cartridge)
