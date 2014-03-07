@@ -16,3 +16,12 @@ marked as defunct.
 But, if we're walking anyway, we could walk the entire cache when we call purge,
 looking for cartridges with the same magazine as this magazine and calling
 remove on their keys.
+
+## Expiration
+
+You can simply implement expiration by stopping a purge, stopping the walk
+backward through the list, when you reach an entry that has not yet expired. You
+make progress by moving that entry to the head of the list, so that if there are
+entries that have indeed expired, they can found at the head of the list.
+
+Also, couldn't magazine manage an access timestamp for you?
