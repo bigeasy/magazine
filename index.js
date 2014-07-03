@@ -41,7 +41,7 @@ Cache.prototype.createMagazine = function () {
 
 Cache.prototype.purge = function (downTo, condition) {
     condition = condition || function () { return true }
-    downTo = Math.max(downTo, -1);
+    downTo = Math.max(downTo, -1)
     var head = this._head
     var iterator = head
     while (this.heft > downTo && iterator._cachePrevious !== head) {
@@ -116,7 +116,7 @@ Magazine.prototype.remove = function (key) {
 
 Magazine.prototype.purge = function (downTo, condition) {
     condition = condition || function () { return true }
-    downTo = Math.max(downTo, -1);
+    downTo = Math.max(downTo, -1)
     var head = this._head
     var iterator = head
     while (this.heft > downTo && iterator._magazinePrevious !== head) {
