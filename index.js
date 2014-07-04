@@ -116,11 +116,20 @@ Magazine.prototype.remove = function (key) {
 
 Magazine.prototype.purge = function (downTo, condition) {
     condition = condition || function () { return true }
-    downTo = Math.max(downTo, -1)
+    var stop = downTo
     var head = this._head
     var iterator = head
-    while (this.heft > downTo && iterator._magazinePrevious !== head) {
+    if (typeof downTo == 'number') {
+        downTo = Math.max(downTo, -1)
+        stop = function () {
+            return this.heft <= downTo
+        }.bind(this)
+    }
+    while (iterator._magazinePrevious !== head) {
         var cartridge = iterator._magazinePrevious
+        if (stop(cartridge)) {
+            break
+        }
         if (!cartridge._holds && condition(cartridge)) {
             this.heft -= cartridge.heft
             this._cache.heft -= cartridge.heft

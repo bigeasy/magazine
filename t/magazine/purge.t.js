@@ -24,6 +24,7 @@ require('proof')(5, function (equal) {
     var cartridge = magazine.hold(1, {})
     cartridge.adjustHeft(1)
     equal(magazine.heft, 2, 'magazine full')
+    magazine.purge(function () { return true })
     magazine.purge(0)
     equal(magazine.heft, 1, 'magazine purged')
     cartridge.release()
