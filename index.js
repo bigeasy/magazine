@@ -1,4 +1,5 @@
-var ok = require('assert').ok
+var ok = require('assert').ok,
+    __slice = [].slice
 
 function unlink (cartridge, prefix) {
     if (!prefix) {
@@ -114,11 +115,20 @@ Magazine.prototype.remove = function (key) {
     }
 }
 
-Magazine.prototype.purge = function (downTo, condition) {
-    condition = condition || function () { return true }
-    var stop = downTo
-    var head = this._head
-    var iterator = head
+Magazine.prototype.purge = function () {
+    var downTo, condition, gather, stop, head, iterator,
+        vargs = __slice.call(arguments)
+    downTo = vargs.shift()
+    if (typeof vargs[0] == 'function') {
+        condition = vargs.shift()
+    }
+    if (Array.isArray(vargs[0])) {
+        gather = vargs.shift()
+    }
+    condition || (condition = function () { return true })
+    stop = downTo
+    head = this._head
+    iterator = head
     if (typeof downTo == 'number') {
         downTo = Math.max(downTo, -1)
         stop = function () {
@@ -131,6 +141,9 @@ Magazine.prototype.purge = function (downTo, condition) {
             break
         }
         if (!cartridge._holds && condition(cartridge)) {
+            if (gather) {
+                gather.push(cartridge.value)
+            }
             this.heft -= cartridge.heft
             this._cache.heft -= cartridge.heft
             unlink(cartridge)
