@@ -68,7 +68,6 @@ function Magazine (cache, key) {
 Magazine.prototype.hold = function (key, defaultValue) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
-    console.log(Object.keys(this._cache._cache), compoundKey, !! cartridge)
     if (!cartridge) {
         if (typeof defaultValue == 'function') {
             defaultValue = defaultValue()
