@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('proof')(6, function (equal) {
+require('proof')(8, function (equal) {
     var Cache = require('../..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -24,7 +24,10 @@ require('proof')(6, function (equal) {
     var cartridge = magazine.hold(1, {}), gather = []
     cartridge.adjustHeft(1)
     equal(magazine.heft, 2, 'magazine full')
+    magazine.purge(0, function () { return false })
+    equal(magazine.heft, 2, 'no conditions matched')
     magazine.purge(function () { return true })
+    equal(magazine.heft, 2, 'stoped')
     magazine.purge(0, gather)
     equal(magazine.heft, 1, 'magazine purged')
     equal(gather.length, 1, 'gathered')

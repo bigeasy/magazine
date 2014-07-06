@@ -40,24 +40,8 @@ Cache.prototype.createMagazine = function () {
     return new Magazine(this, key)
 }
 
-Cache.prototype.purge = function (downTo, condition) {
-    condition = condition || function () { return true }
-    downTo = Math.max(downTo, -1)
-    var head = this._head
-    var iterator = head
-    while (this.heft > downTo && iterator._cachePrevious !== head) {
-        var cartridge = iterator._cachePrevious
-        if (!cartridge._holds && condition(cartridge)) {
-            this.heft -= cartridge.heft
-            cartridge._magazine.heft -= cartridge.heft
-            unlink(cartridge)
-            delete this._cache[cartridge._compoundKey]
-            cartridge._magazine.count--
-            this.count--
-        } else {
-            iterator = cartridge
-        }
-    }
+Cache.prototype.purge = function () {
+    purge.call(this, '_cachePrevious', __slice.call(arguments))
 }
 
 function Magazine (cache, key) {
@@ -115,9 +99,8 @@ Magazine.prototype.remove = function (key) {
     }
 }
 
-Magazine.prototype.purge = function () {
-    var downTo, condition, gather, stop, head, iterator,
-        vargs = __slice.call(arguments)
+function purge (next, vargs) {
+    var downTo, condition, gather, stop, head, iterator, cache, magazine
     downTo = vargs.shift()
     if (typeof vargs[0] == 'function') {
         condition = vargs.shift()
@@ -131,29 +114,29 @@ Magazine.prototype.purge = function () {
     iterator = head
     if (typeof downTo == 'number') {
         downTo = Math.max(downTo, -1)
-        stop = function () {
-            return this.heft <= downTo
-        }.bind(this)
+        stop = function () { return this.heft <= downTo }.bind(this)
     }
-    while (iterator._magazinePrevious !== head) {
-        var cartridge = iterator._magazinePrevious
-        if (stop(cartridge)) {
-            break
-        }
+    while (iterator[next] !== head && !stop(iterator[next])) {
+        var cartridge = iterator[next]
         if (!cartridge._holds && condition(cartridge)) {
+            magazine = cartridge._magazine, cache = magazine._cache
             if (gather) {
                 gather.push(cartridge.value)
             }
-            this.heft -= cartridge.heft
-            this._cache.heft -= cartridge.heft
+            magazine.heft -= cartridge.heft
+            cache.heft -= cartridge.heft
             unlink(cartridge)
-            delete this._cache._cache[cartridge._compoundKey]
-            this.count--
-            this._cache.count--
+            delete cache._cache[cartridge._compoundKey]
+            magazine.count--
+            cache.count--
         } else {
             iterator = cartridge
         }
     }
+}
+
+Magazine.prototype.purge = function () {
+    purge.call(this, '_magazinePrevious', __slice.call(arguments))
 }
 
 function Cartridge (magazine, defaultValue, compoundKey) {
