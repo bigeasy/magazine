@@ -1,7 +1,7 @@
 var ok = require('assert').ok,
     __slice = [].slice
 
-function detatch (cartridge) {
+function detach (cartridge) {
     var magazine = cartridge._magazine, cache = magazine._cache
     magazine.heft -= cartridge.heft
     cache.heft -= cartridge.heft
@@ -36,7 +36,7 @@ function Cache (constructor) {
     var head = {}
     head._cachePrevious = head._cacheNext = head
 
-    this._constructor = constructor
+    this._constructor = constructor // todo bad
     this._cache = {}
     this._head = head
     this._nextKey = 0
@@ -68,6 +68,7 @@ function Magazine (cache, key) {
 Magazine.prototype.hold = function (key, defaultValue) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
+    console.log(Object.keys(this._cache._cache), compoundKey, !! cartridge)
     if (!cartridge) {
         if (typeof defaultValue == 'function') {
             defaultValue = defaultValue()
@@ -118,7 +119,7 @@ function purge (next, vargs) {
             if (gather) {
                 gather.push(cartridge.value)
             }
-            detatch(cartridge)
+            detach(cartridge)
         } else {
             iterator = cartridge
         }
@@ -154,7 +155,7 @@ Cartridge.prototype.remove = function () {
     if (this._holds != 1) {
         throw new Error('attempt to remove cartridge held by others')
     }
-    detatch(this)
+    detach(this)
 }
 
 module.exports = Cache
