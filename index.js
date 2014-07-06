@@ -71,6 +71,7 @@ Magazine.prototype.hold = function (key, defaultValue) {
     link(cartridge, this._cache._head, 'cache')
     link(cartridge, this._head, 'magazine')
     cartridge._holds++
+    cartridge.when = Date.now()
     return cartridge
 }
 
