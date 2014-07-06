@@ -1,6 +1,16 @@
 var ok = require('assert').ok,
     __slice = [].slice
 
+function detatch (cartridge) {
+    var magazine = cartridge._magazine, cache = magazine._cache
+    magazine.heft -= cartridge.heft
+    cache.heft -= cartridge.heft
+    delete cache._cache[cartridge._compoundKey]
+    magazine.count--
+    cache.count--
+    unlink(cartridge)
+}
+
 function unlink (cartridge, prefix) {
     if (!prefix) {
         unlink(cartridge, 'cache')
@@ -84,22 +94,6 @@ Magazine.prototype.get = function (key) {
     return cartridge
 }
 
-Magazine.prototype.remove = function (key) {
-    var compoundKey = this._key + key
-    var cartridge = this._cache._cache[compoundKey]
-    if (cartridge) {
-        if (cartridge._holds) {
-            throw new Error('attempt to remove held cartridge')
-        }
-        this._cache.heft -= cartridge.heft
-        this.heft -= cartridge.heft
-        unlink(cartridge)
-        delete this._cache._cache[compoundKey]
-        this.count--
-        this._cache.count--
-    }
-}
-
 function purge (next, vargs) {
     var downTo, condition, gather, stop, head, iterator, cache, magazine
     downTo = vargs.shift()
@@ -124,12 +118,7 @@ function purge (next, vargs) {
             if (gather) {
                 gather.push(cartridge.value)
             }
-            magazine.heft -= cartridge.heft
-            cache.heft -= cartridge.heft
-            unlink(cartridge)
-            delete cache._cache[cartridge._compoundKey]
-            magazine.count--
-            cache.count--
+            detatch(cartridge)
         } else {
             iterator = cartridge
         }
@@ -159,6 +148,13 @@ Cartridge.prototype.release = function () {
         throw new Error('attempt to release a cartridge not held')
     }
     this._holds--
+}
+
+Cartridge.prototype.remove = function () {
+    if (this._holds != 1) {
+        throw new Error('attempt to remove cartridge held by others')
+    }
+    detatch(this)
 }
 
 module.exports = Cache

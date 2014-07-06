@@ -21,7 +21,7 @@ require('proof')(8, function (equal) {
 
     equal(magazine.count, 1, 'magazine count purge magazine')
 
-    magazine.remove(2)
+    magazine.hold(2).remove()
 
     equal(magazine.count, 0, 'magazine count remove')
 
@@ -41,7 +41,7 @@ require('proof')(8, function (equal) {
 
     equal(cache.count, 1, 'cache count purge magazine')
 
-    magazine.remove(2)
+    magazine.hold(2).remove()
 
     equal(cache.count, 0, 'cache count remove')
 })

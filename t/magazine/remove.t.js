@@ -6,20 +6,21 @@ require('proof')(6, function (equal) {
     var magazine = cache.createMagazine()
 
     var cartridge = magazine.hold(1, { number: 1 })
+    var other = magazine.hold(1, { number: 1 })
     cartridge.adjustHeft(1)
     cartridge.value.number++
     try {
-        magazine.remove(1)
+        cartridge.remove()
     } catch (e) {
-        equal(e.message, 'attempt to remove held cartridge', 'remove held cartridge')
+        equal(e.message, 'attempt to remove cartridge held by others', 'remove held cartridge')
     }
     cartridge.release()
+    other.release()
 
     equal(cache.heft, 1, 'cache heft')
     equal(magazine.heft, 1, 'magazine heft')
 
-    magazine.remove(1)
-    magazine.remove(1)
+    magazine.hold(1, null).remove()
 
     cartridge = magazine.hold(1, { number: 1 })
     equal(cartridge.value.number, 1, 'was removed')
