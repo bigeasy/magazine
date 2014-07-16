@@ -12,7 +12,110 @@
 <h1>Magazine</h1>
 </div>
 
-<div class="unit description markdown"></div>
+<div class="unit description markdown"><p>Magazine is a versatile least-recently used in-memory cache for use in your
+Node.js applications.</p>
+<p>It is a simple key/value store. It can be used any place where you&#39;d use an
+JavaScript <code>Object</code> as a map.</p>
+<h3>Hold and Release</h3>
+<p>A <strong>magazine</strong> is a key/value store for JavaScript objects. A <strong>cartridge</strong> is
+an entry in the magazine, it is an reference-counted wrapper around the stored
+data. A <strong>cache</strong> is a single common backing store for one or more magazines.</p>
+<p>Cartridges are retrieved from the magazine using the <code>hold</code> method. When you
+hold a cartridge it will not be removed by a cache purge. When you are finished
+with the cartridge you must invoke the <code>release</code> method to decrement the
+reference count.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">assert</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;assert&#39;</span><span class="p">),</span>
+    <span class="nx">Cache</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;magazine&#39;</span><span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">cache</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cache</span><span class="p">,</span>
+    <span class="nx">magazine</span> <span class="o">=</span> <span class="nx">cache</span><span class="p">.</span><span class="nx">createMagazine</span><span class="p">()</span>
+
+<span class="kd">var</span> <span class="nx">cartridge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="s1">&#39;one&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;key exists&#39;</span><span class="p">)</span>
+<span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+</pre></div>
+</code></pre>
+<p>The <code>hold</code> method is a get or put-and-get method. It requires a key and an
+initial value. If the key exists in the magazine, the existing value is returned
+in its cartridge and the initial value is discarded. If the key does not exist,
+the key is added to the magazine mapped to a cartridge containing the initial
+value and the initial value is returned.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">assert</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;assert&#39;</span><span class="p">),</span>
+    <span class="nx">Cache</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;magazine&#39;</span><span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">cache</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cache</span><span class="p">,</span>
+    <span class="nx">magazine</span> <span class="o">=</span> <span class="nx">cache</span><span class="p">.</span><span class="nx">createMagazine</span><span class="p">()</span>
+
+<span class="kd">var</span> <span class="nx">cartridge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;key exists&#39;</span><span class="p">)</span>
+<span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+
+<span class="kd">var</span> <span class="nx">cartridge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;key already existed&#39;</span><span class="p">)</span>
+<span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+</pre></div>
+</code></pre>
+<h3>Remove</h3>
+<p>To remove a cartridge from the store you invoke the <code>remove</code> method of the
+cartridge.</p>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">assert</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;assert&#39;</span><span class="p">),</span>
+    <span class="nx">Cache</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;magazine&#39;</span><span class="p">)</span>
+
+<span class="kd">var</span> <span class="nx">cache</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Cache</span><span class="p">,</span>
+    <span class="nx">magazine</span> <span class="o">=</span> <span class="nx">cache</span><span class="p">.</span><span class="nx">createMagazine</span><span class="p">()</span>
+
+<span class="kd">var</span> <span class="nx">cartridge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;key exists&#39;</span><span class="p">)</span>
+<span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+
+<span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">).</span><span class="nx">remove</span><span class="p">()</span>
+
+<span class="kd">var</span> <span class="nx">cartridge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nx">assert</span><span class="p">.</span><span class="nx">equal</span><span class="p">(</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">value</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">&#39;key was removed&#39;</span><span class="p">)</span>
+<span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+</pre></div>
+</code></pre>
+<h3>Purge</h3>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">purge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">purge</span><span class="p">(),</span>
+    <span class="nx">expired</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">5</span> <span class="c1">// five minutes</span>
+<span class="k">while</span> <span class="p">(</span><span class="nx">purge</span><span class="p">.</span><span class="nx">cartridge</span> <span class="o">&amp;&amp;</span> <span class="nx">purge</span><span class="p">.</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">when</span> <span class="o">&lt;=</span> <span class="nx">expired</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">purge</span><span class="p">.</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+    <span class="nx">purge</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="nx">purge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+</pre></div>
+</code></pre>
+<h3>Authentication Token Cache</h3>
+<pre><code class="lang-javascript"><div class="highlight"><pre><span class="kd">var</span> <span class="nx">magazine</span> <span class="o">=</span> <span class="p">(</span><span class="k">new</span> <span class="nx">Cache</span><span class="p">).</span><span class="nx">createMagazine</span><span class="p">()</span>
+
+<span class="kd">function</span> <span class="nx">createToken</span> <span class="p">(</span><span class="nx">clientId</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">hash</span> <span class="o">=</span> <span class="nx">crypto</span><span class="p">.</span><span class="nx">createHash</span><span class="p">(</span><span class="s1">&#39;sha1&#39;</span><span class="p">)</span>
+    <span class="nx">hash</span><span class="p">.</span><span class="nx">update</span><span class="p">(</span><span class="nx">crypto</span><span class="p">.</span><span class="nx">randomBytes</span><span class="p">(</span><span class="mi">16</span><span class="p">))</span>
+    <span class="kd">var</span> <span class="nx">token</span> <span class="o">=</span> <span class="nx">hash</span><span class="p">.</span><span class="nx">digest</span><span class="p">(</span><span class="s1">&#39;hex&#39;</span><span class="p">)</span>
+    <span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="nx">clientId</span><span class="p">).</span><span class="nx">release</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nx">token</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">checkToken</span> <span class="p">(</span><span class="nx">token</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nx">expireTokens</span><span class="p">()</span>
+    <span class="kd">var</span> <span class="nx">clientId</span><span class="p">,</span> <span class="nx">cartridge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">hold</span><span class="p">(</span><span class="nx">token</span><span class="p">,</span> <span class="kc">false</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nx">clientId</span> <span class="o">=</span> <span class="nx">cartridge</span><span class="p">.</span><span class="nx">value</span><span class="p">)</span> <span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+    <span class="k">else</span> <span class="nx">cartridge</span><span class="p">.</span><span class="nx">remove</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nx">clientId</span>
+<span class="p">}</span>
+
+<span class="kd">function</span> <span class="nx">expireTokens</span> <span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">purge</span> <span class="o">=</span> <span class="nx">magazine</span><span class="p">.</span><span class="nx">purge</span><span class="p">()</span>
+    <span class="kd">var</span> <span class="nx">expired</span> <span class="o">=</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">20</span> <span class="c1">// twenty minutes</span>
+    <span class="k">while</span> <span class="p">(</span><span class="nx">purge</span><span class="p">.</span><span class="nx">cartridge</span> <span class="o">&amp;&amp;</span> <span class="nx">purge</span><span class="p">.</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">when</span> <span class="o">&lt;=</span> <span class="nx">expired</span><span class="p">)</span> <span class="p">{</span>
+        <span class="nx">purge</span><span class="p">.</span><span class="nx">cartridge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+        <span class="nx">purge</span><span class="p">.</span><span class="nx">next</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="nx">purge</span><span class="p">.</span><span class="nx">release</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></div>
+</code></pre>
+</div>
 
 </div></body>
 <script>

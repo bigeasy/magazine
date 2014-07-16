@@ -13,6 +13,124 @@
 </div>
 
 <div class="unit description markdown">
+Magazine is a versatile least-recently used in-memory cache for use in your
+Node.js applications.
+
+It is a simple key/value store. It can be used any place where you'd use an
+JavaScript `Object` as a map.
+
+### Hold and Release
+
+A **magazine** is a key/value store for JavaScript objects. A **cartridge** is
+an entry in the magazine, it is an reference-counted wrapper around the stored
+data. A **cache** is a single common backing store for one or more magazines.
+
+Cartridges are retrieved from the magazine using the `hold` method. When you
+hold a cartridge it will not be removed by a cache purge. When you are finished
+with the cartridge you must invoke the `release` method to decrement the
+reference count.
+
+```javascript
+var assert = require('assert'),
+    Cache = require('magazine')
+
+var cache = new Cache,
+    magazine = cache.createMagazine()
+
+var cartridge = magazine.hold('one', 1)
+assert.equal(cartridge.value, 1, 'key exists')
+cartridge.release()
+
+```
+
+The `hold` method is a get or put-and-get method. It requires a key and an
+initial value. If the key exists in the magazine, the existing value is returned
+in its cartridge and the initial value is discarded. If the key does not exist,
+the key is added to the magazine mapped to a cartridge containing the initial
+value and the initial value is returned.
+
+```javascript
+var assert = require('assert'),
+    Cache = require('magazine')
+
+var cache = new Cache,
+    magazine = cache.createMagazine()
+
+var cartridge = magazine.hold('x', 1)
+assert.equal(cartridge.value, 1, 'key exists')
+cartridge.release()
+
+var cartridge = magazine.hold('x', 2)
+assert.equal(cartridge.value, 1, 'key already existed')
+cartridge.release()
+```
+
+### Remove
+
+To remove a cartridge from the store you invoke the `remove` method of the
+cartridge.
+
+```javascript
+var assert = require('assert'),
+    Cache = require('magazine')
+
+var cache = new Cache,
+    magazine = cache.createMagazine()
+
+var cartridge = magazine.hold('x', 1)
+assert.equal(cartridge.value, 1, 'key exists')
+cartridge.release()
+
+magazine.hold('x').remove()
+
+var cartridge = magazine.hold('x', 2)
+assert.equal(cartridge.value, 2, 'key was removed')
+cartridge.release()
+```
+
+### Purge
+
+```javascript
+var purge = magazine.purge(),
+    expired = Date.now() - 1000 * 60 * 5 // five minutes
+while (purge.cartridge &amp;&amp; purge.cartridge.when &lt;= expired) {
+    purge.cartridge.release()
+    purge.next()
+}
+purge.release()
+```
+
+### Authentication Token Cache
+
+```javascript
+var magazine = (new Cache).createMagazine()
+
+function createToken (clientId) {
+    var hash = crypto.createHash('sha1')
+    hash.update(crypto.randomBytes(16))
+    var token = hash.digest('hex')
+    magazine.hold(token, clientId).release()
+    return token
+}
+
+function checkToken (token) {
+    expireTokens()
+    var clientId, cartridge = magazine.hold(token, false)
+    if (clientId = cartridge.value) cartridge.release()
+    else cartridge.remove()
+    return clientId
+}
+
+function expireTokens () {
+    var purge = magazine.purge()
+    var expired = Date.now() - 1000 * 60 * 20 // twenty minutes
+    while (purge.cartridge &amp;&amp; purge.cartridge.when &lt;= expired) {
+        purge.cartridge.release()
+        purge.next()
+    }
+    purge.release()
+}
+```
 </div>
 
 </div></body>
