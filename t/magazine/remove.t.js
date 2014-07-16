@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('proof')(6, function (equal) {
+require('proof')(6, function (assert) {
     var Cache = require('../..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -12,19 +12,19 @@ require('proof')(6, function (equal) {
     try {
         cartridge.remove()
     } catch (e) {
-        equal(e.message, 'attempt to remove cartridge held by others', 'remove held cartridge')
+        assert(e.message, 'attempt to remove cartridge held by others', 'remove held cartridge')
     }
     cartridge.release()
     other.release()
 
-    equal(cache.heft, 1, 'cache heft')
-    equal(magazine.heft, 1, 'magazine heft')
+    assert(cache.heft, 1, 'cache heft')
+    assert(magazine.heft, 1, 'magazine heft')
 
     magazine.hold(1, null).remove()
 
     cartridge = magazine.hold(1, { number: 1 })
-    equal(cartridge.value.number, 1, 'was removed')
+    assert(cartridge.value.number, 1, 'was removed')
 
-    equal(cache.heft, 0, 'cache heft reduced')
-    equal(magazine.heft, 0, 'magazine heft reduced')
+    assert(cache.heft, 0, 'cache heft reduced')
+    assert(magazine.heft, 0, 'magazine heft reduced')
 })
