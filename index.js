@@ -41,8 +41,9 @@ function Cache (constructor) {
     this._head = head
     this._nextKey = 0
 
-    this.heft = 0
     this.count = 0
+    this.holds = 0
+    this.heft = 0
 }
 
 Cache.prototype.createMagazine = function () {
@@ -61,8 +62,10 @@ function Magazine (cache, key) {
     this._cache = cache
     this._key = key
     this._head = head
-    this.heft = 0
+
     this.count = 0
+    this.holds = 0
+    this.heft = 0
 }
 
 Magazine.prototype.hold = function (key, defaultValue) {
@@ -80,7 +83,9 @@ Magazine.prototype.hold = function (key, defaultValue) {
     }
     link(cartridge, this._cache._head, 'cache')
     link(cartridge, this._head, 'magazine')
-    cartridge._holds++
+    cartridge.holds++
+    this.holds++
+    this._cache.holds++
     cartridge.when = Date.now()
     return cartridge
 }
@@ -88,7 +93,7 @@ Magazine.prototype.hold = function (key, defaultValue) {
 Magazine.prototype.get = function (key) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
-    if (!cartridge || !cartridge._holds) {
+    if (!cartridge || !cartridge.holds) {
         throw new Error('attempt to get a cartridge not held')
     }
     return cartridge
@@ -113,7 +118,7 @@ function purge (next, vargs) {
     }
     while (iterator[next] !== head && !stop(iterator[next])) {
         var cartridge = iterator[next]
-        if (!cartridge._holds && condition(cartridge)) {
+        if (!cartridge.holds && condition(cartridge)) {
             magazine = cartridge._magazine, cache = magazine._cache
             if (gather) {
                 gather.push(cartridge.value)
@@ -134,7 +139,7 @@ function Cartridge (magazine, defaultValue, compoundKey) {
     this._magazine = magazine
     this._compoundKey = compoundKey
     this.heft = 0
-    this._holds = 0
+    this.holds = 0
 }
 
 Cartridge.prototype.adjustHeft = function (heft) {
@@ -144,14 +149,17 @@ Cartridge.prototype.adjustHeft = function (heft) {
 }
 
 Cartridge.prototype.release = function () {
-    if (!this._holds) {
+    if (!this.holds) {
         throw new Error('attempt to release a cartridge not held')
     }
-    this._holds--
+    if (--this.holds == 0) {
+        this._magazine.holds--
+        this._magazine._cache.holds--
+    }
 }
 
 Cartridge.prototype.remove = function () {
-    if (this._holds != 1) {
+    if (this.holds != 1) {
         throw new Error('attempt to remove cartridge held by others')
     }
     detach(this)
