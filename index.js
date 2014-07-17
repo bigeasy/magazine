@@ -52,7 +52,7 @@ Cache.prototype.createMagazine = function () {
 }
 
 Cache.prototype.purge = function () {
-    purge.call(this, '_cachePrevious', __slice.call(arguments))
+    return purge.call(this, '_cachePrevious', __slice.call(arguments))
 }
 
 function Magazine (cache, key) {
@@ -101,6 +101,9 @@ Magazine.prototype.get = function (key) {
 
 function purge (next, vargs) {
     var downTo, condition, gather, stop, head, iterator, cache, magazine
+    if (vargs.length == 0) {
+        return new Purge(this, next)
+    }
     downTo = vargs.shift()
     if (typeof vargs[0] == 'function') {
         condition = vargs.shift()
@@ -131,7 +134,7 @@ function purge (next, vargs) {
 }
 
 Magazine.prototype.purge = function () {
-    purge.call(this, '_magazinePrevious', __slice.call(arguments))
+    return purge.call(this, '_magazinePrevious', __slice.call(arguments))
 }
 
 function Cartridge (magazine, defaultValue, compoundKey) {
@@ -164,6 +167,30 @@ Cartridge.prototype.remove = function () {
         throw new Error('attempt to remove cartridge held by others')
     }
     detach(this)
+}
+
+function Purge (object, next) {
+    this._object = object
+    this._next = next
+    this.cartridge = this._object._head
+//    console.log(object, next, this.cartridge)
+    this.next()
+}
+
+Purge.prototype.next = function () {
+    do {
+        this.cartridge = this.cartridge[this._next] === this._object._head
+                       ? null : this.cartridge[this._next]
+    } while (this.cartridge && this.cartridge.holds)
+    if (this.cartridge) {
+        this.cartridge.holds = 1
+    }
+}
+
+Purge.prototype.release = function () {
+    if (this.cartridge) {
+        this.cartridge.release()
+    }
 }
 
 module.exports = Cache

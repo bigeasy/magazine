@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('proof')(8, function (assert) {
+require('proof')(9, function (assert) {
     var Cache = require('../..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -34,4 +34,17 @@ require('proof')(8, function (assert) {
     cartridge.release()
 
     assert(cache.heft, 2, 'cache at end')
+
+    cache.purge().release()
+
+    var purge = cache.purge()
+    while (purge.cartridge) {
+        purge.cartridge.release()
+        purge.next()
+    }
+    purge.release()
+
+    var purge = cache.purge()
+    assert(purge.cartridge, 'purge cartridge')
+    purge.release()
 })
