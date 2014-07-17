@@ -146,6 +146,7 @@ Cartridge.prototype.adjustHeft = function (heft) {
     this.heft += heft
     this._magazine.heft += heft
     this._magazine._cache.heft += heft
+    return this
 }
 
 Cartridge.prototype.release = function () {
