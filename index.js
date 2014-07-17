@@ -75,7 +75,8 @@ Magazine.prototype.hold = function (key, defaultValue) {
         if (typeof defaultValue == 'function') {
             defaultValue = defaultValue()
         }
-        cartridge = this._cache._cache[compoundKey] = new Cartridge(this, defaultValue, compoundKey)
+        cartridge = this._cache._cache[compoundKey] =
+            new Cartridge(this, key, defaultValue, compoundKey)
         this.count++
         this._cache.count++
     } else {
@@ -137,10 +138,13 @@ Magazine.prototype.purge = function () {
     return purge.call(this, '_magazinePrevious', __slice.call(arguments))
 }
 
-function Cartridge (magazine, defaultValue, compoundKey) {
-    this.value = defaultValue
+function Cartridge (magazine, key, value, compoundKey) {
+    this.key = key
+    this.value = value
+
     this._magazine = magazine
     this._compoundKey = compoundKey
+
     this.heft = 0
     this.holds = 0
 }
