@@ -58,8 +58,12 @@
 }
 /* vim: set ts=4 sw=4: */
 /*@code-font: "Oxygen Mono";*/
+@font-face {
+  font-family: "Inconsolata";
+  src: url("./Inconsolata.otf");
+}
 html {
-  background: #f7f7f7;
+  background: #fcfcfc;
   font-size: 100%;
   color: #1a1a1a;
 }
@@ -103,7 +107,7 @@ img {
   font-family: 'FrutigerNeue1450W01-Reg', "Raleway", "Merriweather", "Maven Pro", "Helvetica", serif;
 }
 .unit.description p {
-  font-size: 1.45em;
+  font-size: 1.15em;
   margin: 1em 0;
   /* todo: not working in chrome */
 
@@ -136,8 +140,8 @@ img {
   color: #9370db;
 }
 .unit.description p code {
-  font-family: "Monaco";
-  font-size: 0.85em;
+  font-family: "Inconsolata";
+  font-size: 1.10em;
   background: white;
   padding: 0 0.25em;
   border: 1px dotted #ccc;
@@ -167,9 +171,8 @@ img {
 .unit.description .highlight > pre {
   margin: 2em 0;
   padding: 1em;
-  font-size: 1.15em;
-  /*        font-family: @code-font, 'Monaco', 'Cutive Mono', 'Oxygen Mono', monospace;*/
-
+  font-size: 0.95em;
+  font-family: "Inconsolata", 'Monaco', 'Cutive Mono', 'Oxygen Mono', monospace;
 }
 .unit.sidebar {
   width: 25%;

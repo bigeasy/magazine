@@ -9,8 +9,16 @@
 /*@code-font: "Oxygen Mono";*/
 @code-font: "Monaco";
 
+@font-face {
+    font-family: "Inconsolata";
+    src: url("./Inconsolata.otf");
+}
+
+@code-font: "Courier New";
+@code-font: "Inconsolata";
+
 html {
-    background: darken(#ffffff, 3%);
+    background: darken(#ffffff, 1%);
     font-size: 100%;
     color: @body-text;
 }
@@ -58,7 +66,7 @@ img {
 .unit.description {
     font-family: @body-font, "Raleway", "Merriweather", "Maven Pro", "Helvetica", serif;
     p {
-        font-size: 1.45em;
+        font-size: 1.15em;
         margin: 1em 0;
         /* todo: not working in chrome */
         font-weight: 100;
@@ -91,7 +99,7 @@ img {
     }
     p code {
         font-family: @code-font;
-        font-size: 0.85em;
+        font-size: 1.10em;
         background: white;
         padding: 0 0.25em;
         border: 1px dotted #ccc;
@@ -124,8 +132,8 @@ img {
     .highlight > pre {
         margin: 2em 0;
         padding: 1em;
-        font-size: 1.15em;
-/*        font-family: @code-font, 'Monaco', 'Cutive Mono', 'Oxygen Mono', monospace;*/
+        font-size: 0.95em;
+        font-family: @code-font, 'Monaco', 'Cutive Mono', 'Oxygen Mono', monospace;
     }
 }
 
