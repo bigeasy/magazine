@@ -104,10 +104,11 @@ img {
   margin: 1em 0;
 }
 .unit.description {
-  font-family: 'FrutigerNeue1450W01-Reg', "Raleway", "Merriweather", "Maven Pro", "Helvetica", serif;
+  font-family: 'FrutigerNeue1450W01-Reg', "Helvetica", "Raleway", "Merriweather", "Maven Pro", "Helvetica", serif;
 }
 .unit.description p {
   font-size: 1.15em;
+  line-height: 1.75em;
   margin: 1em 0;
   /* todo: not working in chrome */
 
@@ -140,7 +141,7 @@ img {
   color: #9370db;
 }
 .unit.description p code {
-  font-family: "Inconsolata";
+  font-family: "Courier";
   font-size: 1.10em;
   background: white;
   padding: 0 0.25em;
@@ -172,7 +173,7 @@ img {
   margin: 2em 0;
   padding: 1em;
   font-size: 0.95em;
-  font-family: "Inconsolata", 'Monaco', 'Cutive Mono', 'Oxygen Mono', monospace;
+  font-family: "Courier", 'Monaco', 'Cutive Mono', 'Oxygen Mono', monospace;
 }
 .unit.sidebar {
   width: 25%;

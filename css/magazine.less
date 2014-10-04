@@ -14,8 +14,9 @@
     src: url("./Inconsolata.otf");
 }
 
-@code-font: "Courier New";
 @code-font: "Inconsolata";
+@code-font: "Courier New";
+@code-font: "Courier";
 
 html {
     background: darken(#ffffff, 1%);
@@ -64,9 +65,10 @@ img {
 }
 
 .unit.description {
-    font-family: @body-font, "Raleway", "Merriweather", "Maven Pro", "Helvetica", serif;
+    font-family: @body-font, "Helvetica", "Raleway", "Merriweather", "Maven Pro", "Helvetica", serif;
     p {
         font-size: 1.15em;
+        line-height: 1.75em;
         margin: 1em 0;
         /* todo: not working in chrome */
         font-weight: 100;
