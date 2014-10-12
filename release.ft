@@ -1,6 +1,16 @@
+### Use `magazine.js` for Main Program
+
+It is annoying to attempt to debug a program and have all the source files appear as `index.js` in the debugger.
+
+### Implement a Clock for `when`
+
+Use a clock function to set `when` for the sake of debugging.
+
 ### Issue by Issue
 
  * Implement clock. #62.
  * Rename `index.js` to `magazine.js`. #61.
  * Remove unused `constructor` argument. #60.
  * Upgrade Proof to 0.0.50. #59.
+ * Upgrade Proof to 0.0.48. #58.
+ * Upgrade Proof to 0.0.47. #57.
