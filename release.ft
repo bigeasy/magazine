@@ -1,4 +1,5 @@
 ### Issue by Issue
 
+ * Rename `index.js` to `magazine.js`. #61.
  * Remove unused `constructor` argument. #60.
  * Upgrade Proof to 0.0.50. #59.
