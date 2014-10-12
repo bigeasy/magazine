@@ -32,11 +32,10 @@ function link (cartridge, previous, prefix) {
     previous[next] = cartridge
 }
 
-function Cache (constructor) {
+function Cache () {
     var head = {}
     head._cachePrevious = head._cacheNext = head
 
-    this._constructor = constructor // todo bad
     this._cache = {}
     this._head = head
     this._nextKey = 0
