@@ -32,7 +32,13 @@ function link (cartridge, previous, prefix) {
     previous[next] = cartridge
 }
 
-function Cache () {
+function Cache (options) {
+    options = options || {}
+
+    this._clock = options.clock || function () {
+        return Date.now()
+    }
+
     var head = {}
     head._cachePrevious = head._cacheNext = head
 
@@ -86,7 +92,7 @@ Magazine.prototype.hold = function (key, defaultValue) {
     cartridge.holds++
     this.holds++
     this._cache.holds++
-    cartridge.when = Date.now()
+    cartridge.when = this._cache._clock()
     return cartridge
 }
 
