@@ -60,6 +60,10 @@ Cache.prototype.purge = function () {
     return purge.call(this, '_cachePrevious', __slice.call(arguments))
 }
 
+Cache.prototype.expire = function (expired) {
+    expire(this, expired)
+}
+
 function Magazine (cache, key) {
     var head = {}
     head._magazinePrevious = head._magazineNext = head
@@ -105,6 +109,15 @@ Magazine.prototype.get = function (key) {
     return cartridge
 }
 
+function expire (collection, expired) {
+    var purge = collection.purge()
+    while (purge.cartridge && purge.cartridge.when <= expired) {
+        purge.cartridge.remove()
+        purge.next()
+    }
+    purge.release()
+}
+
 function purge (next, vargs) {
     var downTo, condition, gather, stop, head, iterator, cache, magazine
     if (vargs.length == 0) {
@@ -141,6 +154,10 @@ function purge (next, vargs) {
 
 Magazine.prototype.purge = function () {
     return purge.call(this, '_magazinePrevious', __slice.call(arguments))
+}
+
+Magazine.prototype.expire = function (expired) {
+    expire(this, expired)
 }
 
 function Cartridge (magazine, key, value, compoundKey) {
