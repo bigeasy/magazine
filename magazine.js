@@ -1,5 +1,5 @@
 var ok = require('assert').ok,
-    __slice = [].slice // rename
+    __slice = [].slice // TODO: rename
 
 function detach (cartridge) {
     var magazine = cartridge._magazine, cache = magazine._cache
@@ -199,7 +199,7 @@ function Purge (object, next) {
     this._object = object
     this._next = next
     this.cartridge = this._object._head
-//    console.log(object, next, this.cartridge) tidy
+//    console.log(object, next, this.cartridge) TODO: tidy
     this.next()
 }
 
