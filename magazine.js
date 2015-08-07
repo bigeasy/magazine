@@ -1,5 +1,5 @@
 var ok = require('assert').ok,
-    __slice = [].slice
+    __slice = [].slice // rename
 
 function detach (cartridge) {
     var magazine = cartridge._magazine, cache = magazine._cache
