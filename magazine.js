@@ -199,7 +199,7 @@ function Purge (object, next) {
     this._object = object
     this._next = next
     this.cartridge = this._object._head
-//    console.log(object, next, this.cartridge)
+//    console.log(object, next, this.cartridge) tidy
     this.next()
 }
 
