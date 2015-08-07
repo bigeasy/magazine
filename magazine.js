@@ -1,5 +1,5 @@
 var ok = require('assert').ok,
-    __slice = [].slice // #TODO:0 rename
+    slice = [].slice // #TODO:0 rename
 
 function detach (cartridge) {
     var magazine = cartridge._magazine, cache = magazine._cache
@@ -57,7 +57,7 @@ Cache.prototype.createMagazine = function () {
 }
 
 Cache.prototype.purge = function () {
-    return purge.call(this, '_cachePrevious', __slice.call(arguments))
+    return purge.call(this, '_cachePrevious', slice.call(arguments))
 }
 
 Cache.prototype.expire = function (expired) {
@@ -153,7 +153,7 @@ function purge (next, vargs) {
 }
 
 Magazine.prototype.purge = function () {
-    return purge.call(this, '_magazinePrevious', __slice.call(arguments))
+    return purge.call(this, '_magazinePrevious', slice.call(arguments))
 }
 
 Magazine.prototype.expire = function (expired) {
