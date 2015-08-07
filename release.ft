@@ -14,3 +14,5 @@ Use a clock function to set `when` for the sake of debugging.
  * Remove unused `constructor` argument. #60.
  * Upgrade Proof to 0.0.50. #59.
  * Upgrade Proof to 0.0.48. #58.
+
+todo: remove
