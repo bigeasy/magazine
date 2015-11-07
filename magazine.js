@@ -100,16 +100,6 @@ Magazine.prototype.hold = function (key, defaultValue) {
     return cartridge
 }
 
-// todo: dubious, you should track your own holds.
-Magazine.prototype.get = function (key) {
-    var compoundKey = this._key + key
-    var cartridge = this._cache._cache[compoundKey]
-    if (!cartridge || !cartridge.holds) {
-        throw new Error('attempt to get a cartridge not held')
-    }
-    return cartridge
-}
-
 function expire (collection, expired) {
     var purge = collection.purge()
     while (purge.cartridge && purge.cartridge.when <= expired) {
