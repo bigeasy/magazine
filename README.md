@@ -1,5 +1,9 @@
 # Magazine
 
+Excellent article about Magazine:
+
+http://francescomari.github.io/2014/06/26/the-magazine-cache.html
+
 Magazine is a least-recently used cache in JavaScript that divides a common
 cache into one or more individual collections.
 
