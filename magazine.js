@@ -100,6 +100,7 @@ Magazine.prototype.hold = function (key, defaultValue) {
     return cartridge
 }
 
+// todo: dubious, you should track your own holds.
 Magazine.prototype.get = function (key) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
@@ -118,6 +119,7 @@ function expire (collection, expired) {
     purge.release()
 }
 
+// todo: legacy, do not document, use expire or iterator interface.
 function purge (next, vargs) {
     var downTo, condition, gather, stop, head, iterator, cache, magazine
     if (vargs.length == 0) {
