@@ -34,7 +34,7 @@ function afterOneSecond () {
 
 function afterTwoSeconds () {
     // after two seconds, purge anything that is older than a second and a half
-    cache.purge(Date.now() - 1500)
+    cache.expire(Date.now() - 1500)
 
     // hold the one cartidge, the given value is the default value to use if the
     // value does not exist in the cache.
