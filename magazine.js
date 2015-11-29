@@ -1,11 +1,26 @@
 var ok = require('assert').ok,
     slice = [].slice
 
+function hash (string) {
+    var buffer = new Buffer(string)
+    return fnv(buffer, 0, buffer.length)
+}
+
+function fnv (block, start, end) {
+    var hash = (0 ^ 2166136261) >>> 0
+    for (var i = start; i < end; i++) {
+        hash = (hash ^ block[i]) >>> 0
+        hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24) >>> 0
+        hash = hash >>> 0
+    }
+    return hash & 0xfffff
+}
+
 function detach (cartridge) {
     var magazine = cartridge._magazine, cache = magazine._cache
     magazine.heft -= cartridge.heft
     cache.heft -= cartridge.heft
-    delete cache._cache[cartridge._compoundKey]
+    delete cache._cache[hash(cartridge._compoundKey)][cartridge._compoundKey]
     magazine.count--
     cache.count--
     unlink(cartridge)
@@ -42,7 +57,10 @@ function Cache (options) {
     var head = {}
     head._cachePrevious = head._cacheNext = head
 
-    this._cache = {}
+    this._cache = new Array(1024 * 1024)
+    for (var i = 0, I = this._cache.length; i < I; i++ ) {
+        this._cache[i] = {}
+    }
     this._head = head
     this._nextKey = 0
 
@@ -79,12 +97,12 @@ function Magazine (cache, key) {
 
 Magazine.prototype.hold = function (key, defaultValue) {
     var compoundKey = this._key + key
-    var cartridge = this._cache._cache[compoundKey]
+    var cartridge = this._cache._cache[hash(compoundKey)][compoundKey]
     if (!cartridge) {
         if (typeof defaultValue == 'function') {
             defaultValue = defaultValue()
         }
-        cartridge = this._cache._cache[compoundKey] =
+        cartridge = this._cache._cache[hash(compoundKey)][compoundKey] =
             new Cartridge(this, key, defaultValue, compoundKey)
         this.count++
         this._cache.count++
