@@ -77,16 +77,14 @@ function Magazine (cache, key) {
     this.heft = 0
 }
 
-Magazine.prototype.hold = function (key, defaultValue) {
+Magazine.prototype.hold = function (key, initializer) {
+    // TODO Remove once you're certain you're not using function initializers.
+    ok(typeof initializer != 'function')
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
     if (!cartridge) {
-        // TODO Not expecting this. Is it used anywhere?
-        if (typeof defaultValue == 'function') {
-            defaultValue = defaultValue()
-        }
         cartridge = this._cache._cache[compoundKey] =
-            new Cartridge(this, key, defaultValue, compoundKey)
+            new Cartridge(this, key, initializer, compoundKey)
         this.count++
         this._cache.count++
     } else {
