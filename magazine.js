@@ -110,7 +110,7 @@ function expire (collection, expired) {
     purge.release()
 }
 
-// todo: legacy, do not document, use expire or iterator interface.
+// TODO Legacy, do not document, use expire or iterator interface.
 function purge (next, vargs) {
     var downTo, condition, gather, stop, head, iterator, cache, magazine
     if (vargs.length == 0) {
