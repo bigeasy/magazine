@@ -81,6 +81,7 @@ Magazine.prototype.hold = function (key, defaultValue) {
     var compoundKey = this._key + key
     var cartridge = this._cache._cache[compoundKey]
     if (!cartridge) {
+        // TODO Not expecting this. Is it used anywhere?
         if (typeof defaultValue == 'function') {
             defaultValue = defaultValue()
         }
