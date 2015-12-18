@@ -3,7 +3,7 @@
 require('proof')(2, function (assert) {
     var Cache = require('../..')
     var now = 0
-    var cache = new Cache({ clock: function () { return now++ } })
+    var cache = new Cache({ Date: { now: function () { return now++ } } })
     var magazine = cache.createMagazine()
     magazine.hold(1, true).release()
     magazine.hold(2, true).release()
