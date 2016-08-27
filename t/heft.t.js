@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('proof')(4, function (assert) {
+require('proof/redux')(4, function (assert) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()

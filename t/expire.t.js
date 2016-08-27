@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-require('proof')(2, function (assert) {
+require('proof/redux')(2, function (assert) {
     var Cache = require('..')
     var now = 0
     var cache = new Cache({ Date: { now: function () { return now++ } } })
