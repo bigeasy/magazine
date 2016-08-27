@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 require('proof')(5, function (assert) {
-    var Cache = require('../..')
+    var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
 
