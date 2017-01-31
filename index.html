@@ -90,7 +90,7 @@ loop you call teh <code>release</code> method of <code>purge</code> iterator to 
 If the current cartridge is not null, the <code>release</code> method of the cartridge is
 invoked.</p>
 <pre><code class="lang-javascript"><span class="hljs-keyword">var</span> purge = magazine.purge()
-<span class="hljs-keyword">while</span> (purge.cartridge &amp;amp;&amp;amp; magazine.count &amp;gt; <span class="hljs-number">64</span>) {
+<span class="hljs-keyword">while</span> (purge.cartridge &amp;&amp; magazine.count &lt; <span class="hljs-number">64</span>) {
     purge.cartridge.release()
     purge.next()
 }
@@ -118,7 +118,7 @@ purge.release()
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">expireTokens</span> (<span class="hljs-params"></span>) </span>{
     <span class="hljs-keyword">var</span> purge = magazine.purge()
     <span class="hljs-keyword">var</span> expired = <span class="hljs-built_in">Date</span>.now() - <span class="hljs-number">1000</span> * <span class="hljs-number">60</span> * <span class="hljs-number">20</span> <span class="hljs-comment">// twenty minutes</span>
-    <span class="hljs-keyword">while</span> (purge.cartridge &amp;amp;&amp;amp; purge.cartridge.when &amp;lt;= expired) {
+    <span class="hljs-keyword">while</span> (purge.cartridge &amp;&amp; purge.cartridge.when &lt;= expired) {
         purge.cartridge.release()
         purge.next()
     }

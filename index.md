@@ -97,7 +97,7 @@ invoked.
 
 ```javascript
 var purge = magazine.purge()
-while (purge.cartridge &amp;&amp; magazine.count &gt; 64) {
+while (purge.cartridge && magazine.count < 64) {
     purge.cartridge.release()
     purge.next()
 }
@@ -128,7 +128,7 @@ function checkToken (token) {
 function expireTokens () {
     var purge = magazine.purge()
     var expired = Date.now() - 1000 * 60 * 20 // twenty minutes
-    while (purge.cartridge &amp;&amp; purge.cartridge.when &lt;= expired) {
+    while (purge.cartridge && purge.cartridge.when <= expired) {
         purge.cartridge.release()
         purge.next()
     }
