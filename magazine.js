@@ -8,6 +8,7 @@ function detach (cartridge) {
     delete cache._cache[cartridge._compoundKey]
     magazine.count--
     cache.count--
+    cartridge._detached = true
     unlink(cartridge)
 }
 
@@ -64,7 +65,7 @@ Cache.prototype.expire = function (expired) {
 }
 
 function Magazine (cache, key) {
-    var head = {}
+    var head = { key: null, when: null, _terminal: true }
     head._magazinePrevious = head._magazineNext = head
 
     this._cache = cache
@@ -156,6 +157,7 @@ function Cartridge (magazine, key, value, compoundKey) {
 
     this._magazine = magazine
     this._compoundKey = compoundKey
+    this._terminal = false
 
     this.heft = 0
     this.holds = 0
@@ -206,6 +208,31 @@ Purge.prototype.release = function () {
     if (this.cartridge) {
         this.cartridge.release()
     }
+}
+
+function Iterator (cartridge, direction) {
+    this.key = cartridge.key
+    this.when = cartridge.when
+    this.end = cartridge._terminal
+    this._cartridge = cartridge
+    this._direction = direction
+}
+
+Iterator.prototype.previous = function () {
+    do {
+        var cartridge = this._cartridge[this._direction]
+        var detached = cartridge._detached
+        this.key = cartridge.key
+        this.when = cartridge.when
+        this.end = cartridge._terminal
+        this._cartridge = cartridge
+    } while (detached)
+
+    return this.end
+}
+
+Magazine.prototype.iterator = function () {
+    return new Iterator(this._head._magazinePrevious, '_magazinePrevious')
 }
 
 module.exports = Cache
