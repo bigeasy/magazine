@@ -235,4 +235,26 @@ Magazine.prototype.iterator = function () {
     return new Iterator(this._head._magazinePrevious, '_magazinePrevious')
 }
 
+Magazine.prototype.get = function (key) {
+    var object = {}, got
+    var cartridge = this.hold(key, object)
+    if (cartridge.value === object) {
+        cartridge.remove()
+    } else {
+        got = cartridge.value
+        cartridge.release()
+    }
+    return got
+}
+
+Magazine.prototype.put = function (key, value) {
+    var cartridge = this.hold(key, null)
+    cartridge.value = value
+    cartridge.release()
+}
+
+Magazine.prototype.remove = function (key) {
+    this.hold(key, null).remove()
+}
+
 module.exports = Cache
