@@ -40,6 +40,7 @@
     <span class="hljs-keyword">delete</span> cache._cache[cartridge._compoundKey]
     magazine.count--
     cache.count--
+    cartridge._detached = <span class="hljs-literal">true</span>
     unlink(cartridge)
 }
 
@@ -96,7 +97,7 @@ Cache.prototype.expire = <span class="hljs-function"><span class="hljs-keyword">
 }
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Magazine</span> (<span class="hljs-params">cache, key</span>) </span>{
-    <span class="hljs-keyword">var</span> head = {}
+    <span class="hljs-keyword">var</span> head = { <span class="hljs-attr">key</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">when</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">_terminal</span>: <span class="hljs-literal">true</span> }
     head._magazinePrevious = head._magazineNext = head
 
     <span class="hljs-keyword">this</span>._cache = cache
@@ -216,6 +217,7 @@ Magazine.prototype.expire = <span class="hljs-function"><span class="hljs-keywor
 
     <span class="hljs-keyword">this</span>._magazine = magazine
     <span class="hljs-keyword">this</span>._compoundKey = compoundKey
+    <span class="hljs-keyword">this</span>._terminal = <span class="hljs-literal">false</span>
 
     <span class="hljs-keyword">this</span>.heft = <span class="hljs-number">0</span>
     <span class="hljs-keyword">this</span>.holds = <span class="hljs-number">0</span>
@@ -266,6 +268,53 @@ Purge.prototype.release = <span class="hljs-function"><span class="hljs-keyword"
     <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.cartridge) {
         <span class="hljs-keyword">this</span>.cartridge.release()
     }
+}
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Iterator</span> (<span class="hljs-params">cartridge, direction</span>) </span>{
+    <span class="hljs-keyword">this</span>.key = cartridge.key
+    <span class="hljs-keyword">this</span>.when = cartridge.when
+    <span class="hljs-keyword">this</span>.end = cartridge._terminal
+    <span class="hljs-keyword">this</span>._cartridge = cartridge
+    <span class="hljs-keyword">this</span>._direction = direction
+}
+
+Iterator.prototype.previous = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">do</span> {
+        <span class="hljs-keyword">var</span> cartridge = <span class="hljs-keyword">this</span>._cartridge[<span class="hljs-keyword">this</span>._direction]
+        <span class="hljs-keyword">var</span> detached = cartridge._detached
+        <span class="hljs-keyword">this</span>.key = cartridge.key
+        <span class="hljs-keyword">this</span>.when = cartridge.when
+        <span class="hljs-keyword">this</span>.end = cartridge._terminal
+        <span class="hljs-keyword">this</span>._cartridge = cartridge
+    } <span class="hljs-keyword">while</span> (detached)
+
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.end
+}
+
+Magazine.prototype.iterator = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{
+    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Iterator(<span class="hljs-keyword">this</span>._head._magazinePrevious, <span class="hljs-string">'_magazinePrevious'</span>)
+}
+
+Magazine.prototype.get = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
+    <span class="hljs-keyword">var</span> object = {}, go
+    <span class="hljs-keyword">var</span> cartridge = <span class="hljs-keyword">this</span>.hold(key, object)
+    <span class="hljs-keyword">if</span> (cartridge.value === object) {
+        cartridge.remove()
+    } <span class="hljs-keyword">else</span> {
+        got = cartridge.value
+        cartridge.release()
+    }
+    <span class="hljs-keyword">return</span> go
+}
+
+Magazine.prototype.put = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key, value</span>) </span>{
+    <span class="hljs-keyword">var</span> cartridge = <span class="hljs-keyword">this</span>.hold(key, <span class="hljs-literal">null</span>)
+    cartridge.value = value
+    cartridge.release()
+}
+
+Magazine.prototype.remove = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key</span>) </span>{
+    <span class="hljs-keyword">this</span>.hold(key, <span class="hljs-literal">null</span>).remove()
 }
 
 <span class="hljs-built_in">module</span>.exports = Cache
