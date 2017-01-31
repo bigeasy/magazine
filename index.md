@@ -1,19 +1,3 @@
-<!DOCTYPE html>
-<html>
-<meta charset="utf-8">
-<title>Magazine</title>
-<link href="http://fonts.googleapis.com/css?family=ABeeZee|Inconsolata|Karla:400,700|Oxygen+Mono" rel="stylesheet" type="text/css">
-<link href="http://fonts.googleapis.com/css?family=Sorts+Mill+Goudy">
-<link rel="stylesheet" type="text/css" href="css/syntax.css">
-<link type="text/css" rel="stylesheet" href="http://fast.fonts.net/cssapi/b897c42c-ebfc-495c-bc36-c5494abe4d3c.css"/>
-<link rel="stylesheet" type="text/css" href="css/magazine.css">
-<body><a href="https://github.com/bigeasy/magazine/"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_gray_6d6d6d.png" alt="Fork me on GitHub"></a><div class="container">
-
-<div class="unit welcome">
-<h1>Magazine</h1>
-</div>
-
-<div class="unit description markdown">
 Magazine is a versatile least-recently used in-memory cache for use in your
 Node.js applications.
 
@@ -165,16 +149,3 @@ the magazines of a given type.
 
 Think about how you use JavaScript objects as maps and how cumbersome it would
 be if you were only allowed to do this once per program.
-</div>
-
-</div></body>
-<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-20388260-3', 'bigeasy.github.io');
-ga('send', 'pageview');
-</script>
-</html>
