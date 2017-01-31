@@ -99,5 +99,5 @@ index.html: index.md
 clean:
 	rm -f $(outputs)
 
-serve: node_modules/.bin/serve
+serve: node_modules/.bin/serve all
 	node_modules/.bin/serve -p 4000
