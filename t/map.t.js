@@ -1,4 +1,4 @@
-require('proof/redux')(3, prove)
+require('proof/redux')(4, prove)
 
 function prove (assert) {
     var Cache = require('..')
@@ -10,4 +10,5 @@ function prove (assert) {
     assert(magazine.get('x'), 'y', 'found')
     magazine.remove('x')
     assert(magazine.get('x') === undefined, 'removed')
+    assert(magazine.get('x', 'y'), 'y', 'primed')
 }
