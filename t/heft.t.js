@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 require('proof/redux')(4, function (assert) {
     var Cache = require('..')
     var cache = new Cache
