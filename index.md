@@ -4,6 +4,8 @@ Node.js applications.
 It is a simple key/value store. It can be used any place where you'd use an
 JavaScript `Object` as a map.
 
+Also, have a look at the [Docco](./docco/).
+
 ### Key Concepts
 
 A **magazine** is a key/value store for JavaScript objects. A **cartridge** is
