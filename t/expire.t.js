@@ -1,4 +1,6 @@
-require('proof/redux')(2, function (assert) {
+require('proof/redux')(2, prove)
+
+function prove (assert) {
     var Cache = require('..')
     var now = 0
     var cache = new Cache({ Date: { now: function () { return now++ } } })
@@ -12,4 +14,4 @@ require('proof/redux')(2, function (assert) {
     magazine.hold(5, true).release()
     cache.expire(3)
     assert(magazine.count, 1, 'purge cache')
-})
+}

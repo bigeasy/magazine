@@ -1,4 +1,6 @@
-require('proof/redux')(4, function (assert) {
+require('proof/redux')(4, prove)
+
+function prove (assert) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -14,4 +16,4 @@ require('proof/redux')(4, function (assert) {
 
     assert(cache.heft, 0, 'cache heft purged')
     assert(magazine.heft, 0, 'magazine heft purged')
-})
+}

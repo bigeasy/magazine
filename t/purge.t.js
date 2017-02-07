@@ -1,4 +1,6 @@
-require('proof/redux')(9, function (assert) {
+require('proof/redux')(9, prove)
+
+function prove (assert) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -45,4 +47,4 @@ require('proof/redux')(9, function (assert) {
     var purge = cache.purge()
     assert(purge.cartridge, 'purge cartridge')
     purge.release()
-})
+}

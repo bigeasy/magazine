@@ -1,4 +1,6 @@
-require('proof/redux')(8, function (assert) {
+require('proof/redux')(8, prove)
+
+function prove (assert) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -42,4 +44,4 @@ require('proof/redux')(8, function (assert) {
     magazine.hold(2).remove()
 
     assert(cache.count, 0, 'cache count remove')
-})
+}

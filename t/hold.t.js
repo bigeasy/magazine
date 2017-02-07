@@ -1,4 +1,6 @@
-require('proof/redux')(5, function (assert) {
+require('proof/redux')(5, prove)
+
+function prove (assert) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -19,4 +21,4 @@ require('proof/redux')(5, function (assert) {
     } catch (e) {
         assert(e.message, 'attempt to release a cartridge not held', 'release not held')
     }
-})
+}
