@@ -35,8 +35,8 @@
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">detach</span> (<span class="hljs-params">cartridge</span>) </span>{
     <span class="hljs-keyword">var</span> magazine = cartridge._magazine, cache = magazine._cache
-    magazine.heft -= cartridge.hef
-    cache.heft -= cartridge.hef
+    magazine.heft -= cartridge.heft
+    cache.heft -= cartridge.heft
     <span class="hljs-keyword">delete</span> cache._cache[cartridge._compoundKey]
     magazine.count--
     cache.count--
@@ -224,9 +224,9 @@ Magazine.prototype.expire = <span class="hljs-function"><span class="hljs-keywor
 }
 
 Cartridge.prototype.adjustHeft = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">heft</span>) </span>{
-    <span class="hljs-keyword">this</span>.heft += hef
-    <span class="hljs-keyword">this</span>._magazine.heft += hef
-    <span class="hljs-keyword">this</span>._magazine._cache.heft += hef
+    <span class="hljs-keyword">this</span>.heft += heft
+    <span class="hljs-keyword">this</span>._magazine.heft += heft
+    <span class="hljs-keyword">this</span>._magazine._cache.heft += heft
     <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>
 }
 
@@ -248,8 +248,8 @@ Cartridge.prototype.remove = <span class="hljs-function"><span class="hljs-keywo
 }
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">Purge</span> (<span class="hljs-params">object, next</span>) </span>{
-    <span class="hljs-keyword">this</span>._object = objec
-    <span class="hljs-keyword">this</span>._next = nex
+    <span class="hljs-keyword">this</span>._object = object
+    <span class="hljs-keyword">this</span>._next = next
     <span class="hljs-keyword">this</span>.cartridge = <span class="hljs-keyword">this</span>._object._head
     <span class="hljs-keyword">this</span>.next()
 }
@@ -296,7 +296,7 @@ Magazine.prototype.iterator = <span class="hljs-function"><span class="hljs-keyw
 }
 
 Magazine.prototype.get = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key, value</span>) </span>{
-    <span class="hljs-keyword">var</span> cartridge, go
+    <span class="hljs-keyword">var</span> cartridge, got
     <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>.length == <span class="hljs-number">2</span>) {
         cartridge = <span class="hljs-keyword">this</span>.hold(key, value)
         got = cartridge.value
@@ -311,7 +311,7 @@ Magazine.prototype.get = <span class="hljs-function"><span class="hljs-keyword">
             cartridge.release()
         }
     }
-    <span class="hljs-keyword">return</span> go
+    <span class="hljs-keyword">return</span> got
 }
 
 Magazine.prototype.put = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">key, value</span>) </span>{
