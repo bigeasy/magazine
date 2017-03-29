@@ -18,6 +18,9 @@
                             "type": "git",
                             "url": "http://github.com/bigeasy/magazine.git"
     },
+    "dependencies":
+    {
+    },
     "devDependencies":
     {
                             "proof":                        "1.2.x"
