@@ -7,7 +7,8 @@
 
     "keywords":
     [
-                            "lru", "cache", "weak", "magazine", "database"
+                            "bluey", "lru", "cache", "weak", "magazine",
+                            "database"
     ],
     "author":               "Alan Gutierrez <alan@prettyrobots.com>",
     "homepage":             "https://bigeasy.github.io/magazine",
