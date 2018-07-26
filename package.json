@@ -1,6 +1,6 @@
 {
     "name":                 "magazine",
-    "version":              "3.2.3",
+    "version":              "3.2.4",
     "description":
 
       "A collective least-recently used cache.",
