@@ -210,31 +210,6 @@ Purge.prototype.release = function () {
     }
 }
 
-function Iterator (cartridge, direction) {
-    this.key = cartridge.key
-    this.when = cartridge.when
-    this.end = cartridge._terminal
-    this._cartridge = cartridge
-    this._direction = direction
-}
-
-Iterator.prototype.previous = function () {
-    do {
-        var cartridge = this._cartridge[this._direction]
-        var detached = cartridge._detached
-        this.key = cartridge.key
-        this.when = cartridge.when
-        this.end = cartridge._terminal
-        this._cartridge = cartridge
-    } while (detached)
-
-    return this.end
-}
-
-Magazine.prototype.iterator = function () {
-    return new Iterator(this._head._magazinePrevious, '_magazinePrevious')
-}
-
 var NULL = {}
 
 Magazine.prototype.get = function (key, value) {
