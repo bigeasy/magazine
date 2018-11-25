@@ -1,6 +1,6 @@
 require('proof')(2, prove)
 
-function prove (assert) {
+function prove (okay) {
     var Cache = require('..')
     var now = 0
     var cache = new Cache({ Date: { now: function () { return now++ } } })
@@ -9,9 +9,9 @@ function prove (assert) {
     magazine.hold(2, true).release()
     magazine.hold(3, true).release()
     magazine.expire(1)
-    assert(magazine.count, 1, 'purge magazine')
+    okay(magazine.count, 1, 'purge magazine')
     magazine.hold(4, true).release()
     magazine.hold(5, true).release()
     cache.expire(3)
-    assert(magazine.count, 1, 'purge cache')
+    okay(magazine.count, 1, 'purge cache')
 }

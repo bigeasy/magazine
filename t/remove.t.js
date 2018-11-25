@@ -1,6 +1,6 @@
 require('proof')(6, prove)
 
-function prove (assert) {
+function prove (okay) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -12,19 +12,19 @@ function prove (assert) {
     try {
         cartridge.remove()
     } catch (e) {
-        assert(e.message, 'attempt to remove cartridge held by others', 'remove held cartridge')
+        okay(e.message, 'attempt to remove cartridge held by others', 'remove held cartridge')
     }
     cartridge.release()
     other.release()
 
-    assert(cache.heft, 1, 'cache heft')
-    assert(magazine.heft, 1, 'magazine heft')
+    okay(cache.heft, 1, 'cache heft')
+    okay(magazine.heft, 1, 'magazine heft')
 
     magazine.hold(1, null).remove()
 
     cartridge = magazine.hold(1, { number: 1 })
-    assert(cartridge.value.number, 1, 'was removed')
+    okay(cartridge.value.number, 1, 'was removed')
 
-    assert(cache.heft, 0, 'cache heft reduced')
-    assert(magazine.heft, 0, 'magazine heft reduced')
+    okay(cache.heft, 0, 'cache heft reduced')
+    okay(magazine.heft, 0, 'magazine heft reduced')
 }

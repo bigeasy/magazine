@@ -1,6 +1,6 @@
 require('proof')(9, prove)
 
-function prove (assert) {
+function prove (okay) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -12,9 +12,9 @@ function prove (assert) {
 
     var cartridge = magazine.hold(2, {})
     cartridge.adjustHeft(1)
-    assert(cache.heft, 2, 'cache full')
+    okay(cache.heft, 2, 'cache full')
     cache.purge(0)
-    assert(cache.heft, 1, 'cache purged')
+    okay(cache.heft, 1, 'cache purged')
     cartridge.release()
 
     var cartridge = cache.createMagazine().hold(1, {})
@@ -23,17 +23,17 @@ function prove (assert) {
 
     var cartridge = magazine.hold(1, {}), gather = []
     cartridge.adjustHeft(1)
-    assert(magazine.heft, 2, 'magazine full')
+    okay(magazine.heft, 2, 'magazine full')
     magazine.purge(0, function () { return false })
-    assert(magazine.heft, 2, 'no conditions matched')
+    okay(magazine.heft, 2, 'no conditions matched')
     magazine.purge(function () { return true })
-    assert(magazine.heft, 2, 'stoped')
+    okay(magazine.heft, 2, 'stoped')
     magazine.purge(0, gather)
-    assert(magazine.heft, 1, 'magazine purged')
-    assert(gather.length, 1, 'gathered')
+    okay(magazine.heft, 1, 'magazine purged')
+    okay(gather.length, 1, 'gathered')
     cartridge.release()
 
-    assert(cache.heft, 2, 'cache at end')
+    okay(cache.heft, 2, 'cache at end')
 
     cache.purge().release()
 
@@ -45,6 +45,6 @@ function prove (assert) {
     purge.release()
 
     var purge = cache.purge()
-    assert(purge.cartridge, 'purge cartridge')
+    okay(purge.cartridge, 'purge cartridge')
     purge.release()
 }

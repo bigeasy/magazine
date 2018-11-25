@@ -1,6 +1,6 @@
 require('proof')(4, prove)
 
-function prove (assert) {
+function prove (okay) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -9,11 +9,11 @@ function prove (assert) {
     cartridge.adjustHeft(1)
     cartridge.release()
 
-    assert(cache.heft, 1, 'cache heft adjusted')
-    assert(magazine.heft, 1, 'magazine heft adjusted')
+    okay(cache.heft, 1, 'cache heft adjusted')
+    okay(magazine.heft, 1, 'magazine heft adjusted')
 
     cache.purge(0)
 
-    assert(cache.heft, 0, 'cache heft purged')
-    assert(magazine.heft, 0, 'magazine heft purged')
+    okay(cache.heft, 0, 'cache heft purged')
+    okay(magazine.heft, 0, 'magazine heft purged')
 }

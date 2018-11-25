@@ -1,6 +1,6 @@
 require('proof')(3, prove)
 
-function prove (assert) {
+function prove (okay) {
     var Cache = require('..')
     var cache = new Cache
     var magazine = cache.createMagazine()
@@ -16,9 +16,9 @@ function prove (assert) {
     var keys = [ 1, 2 ]
 
     while (!iterator.end) {
-        assert(iterator.key, keys.shift(), 'key')
+        okay(iterator.key, keys.shift(), 'key')
         iterator.previous()
     }
 
-    assert(iterator.key, null, 'null key')
+    okay(iterator.key, null, 'null key')
 }
