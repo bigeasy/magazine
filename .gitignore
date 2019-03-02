@@ -3,4 +3,5 @@
 /node_modules
 /.proof.out
 /coverage
+/.nyc_output
 /.imdone
