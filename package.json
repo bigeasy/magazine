@@ -24,7 +24,7 @@
     },
     "devDependencies":
     {
-                            "proof":                        "5.0.x"
+                            "proof":                        "7.0.x"
     },
     "main":                 "magazine.js",
     "scripts":
