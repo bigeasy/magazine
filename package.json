@@ -24,11 +24,11 @@
     },
     "devDependencies":
     {
-                            "proof":                        "7.0.x"
+                            "proof":                        "^9.0.2"
     },
     "main":                 "magazine.js",
     "scripts":
     {
-                            "test": "proof test test/*.t.*"
+                            "test": "proof test/*.t.*"
     }
 }
