@@ -1,3 +1,24 @@
+[![Actions Status](https://github.com/bigeasy/magazine/workflows/Node%20CI/badge.svg)](https://github.com/bigeasy/magazine/actions)
+[![codecov](https://codecov.io/gh/bigeasy/magazine/branch/master/graph/badge.svg)](https://codecov.io/gh/bigeasy/magazine)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A LRU cache.
+
+| What          | Where                                         |
+| --- | --- |
+| Discussion    | https://github.com/bigeasy/magazine/issues/1  |
+| Documentation | https://bigeasy.github.io/magazine            |
+| Source        | https://github.com/bigeasy/magazine           |
+| Issues        | https://github.com/bigeasy/magazine/issues    |
+| CI            | https://travis-ci.org/bigeasy/magazine        |
+| Coverage:     | https://codecov.io/gh/bigeasy/magazine        |
+| License:      | MIT                                           |
+
+
+```
+npm install magazine
+```
+
 # Magazine
 
 Excellent article about Magazine:
