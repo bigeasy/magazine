@@ -1,7 +1,5 @@
-/docs
-/.wiseguy
-/node_modules
-/.proof.out
-/coverage
 /.nyc_output
-/.imdone
+/.wiseguy
+/coverage
+/docs
+/node_modules
