@@ -1,141 +1,138 @@
-<!DOCTYPE html>
-<html>
+
+
   <meta charset="utf-8">
   <title>Magazine</title>
   <link href="https://fonts.googleapis.com/css?family=Cutive+Mono|Sorts+Mill+Goudy|Mate|Oxygen+Mono|Offside|Raleway:400,700" rel="stylesheet" type="text/css">
   <link href="https://fonts.googleapis.com/css?family=Sorts+Mill+Goudy">
   <link rel="stylesheet" type="text/css" href="css/ascetic.css">
   <link rel="stylesheet" type="text/css" href="css/style.css">
-</html>
-<body><a href="https://github.com/bigeasy/magazine/"><img style="position: fixed; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+
+<a href="https://github.com/bigeasy/magazine/"><img style="position: fixed; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
   <div class="container">
     <div class="unit welcome">
       <h1>Magazine</h1>
       <!-- todo: code font is too small for body text font-->
     </div>
-    <div class="unit description markdown include" data-file="index.md"><p>Magazine is a versatile least-recently used in-memory cache for use in your
-Node.js applications.</p>
-<p>It is a simple key/value store. It can be used any place where you&apos;d use an
-JavaScript <code>Object</code> as a map.</p>
-<p>Also, have a look at the <a href="./docco/">Docco</a>.</p>
-<h3 id="key-concepts">Key Concepts</h3>
-<p>A <strong>magazine</strong> is a key/value store for JavaScript objects. A <strong>cartridge</strong> is
-an entry in the magazine, it is an reference-counted wrapper around the stored
-data. A <strong>cache</strong> is a single common backing store for one or more magazines.</p>
-<p>Why have a <strong>cartrdige</strong>? It is a wrapper that tracks cache meta data and
-performs reference counting. It also provides methods to release a hold on the
-cartridge and to remove the cartridge from the magazine.</p>
-<h3 id="hold-and-release">Hold and Release</h3>
-<p>Cartridges are retrieved from the magazine using the <code>hold</code> method. When you
-hold a cartridge it will not be removed by a cache purge. When you are finished
-with the cartridge you must invoke the <code>release</code> method to decrement the
-reference count.</p>
-<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">&apos;assert&apos;</span>),
-    Cache = <span class="hljs-built_in">require</span>(<span class="hljs-string">&apos;magazine&apos;</span>)
-
-<span class="hljs-keyword">var</span> cache = <span class="hljs-keyword">new</span> Cache,
-    magazine = cache.createMagazine()
-
-<span class="hljs-keyword">var</span> cartridge = magazine.hold(<span class="hljs-string">&apos;one&apos;</span>, <span class="hljs-number">1</span>)
-assert.equal(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">&apos;key exists&apos;</span>)
-cartridge.release()
-</code></pre>
-<p>The <code>hold</code> method is a get or put-and-get method. It requires a key and an
-initial value. If the key exists in the magazine, the existing value is returned
-in its cartridge and the initial value is discarded. If the key does not exist,
-the key is added to the magazine mapped to a cartridge containing the initial
-value and the initial value is returned.</p>
-<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">&apos;assert&apos;</span>),
-    Cache = <span class="hljs-built_in">require</span>(<span class="hljs-string">&apos;magazine&apos;</span>)
-
-<span class="hljs-keyword">var</span> cache = <span class="hljs-keyword">new</span> Cache,
-    magazine = cache.createMagazine()
-
-<span class="hljs-keyword">var</span> cartridge = magazine.hold(<span class="hljs-string">&apos;x&apos;</span>, <span class="hljs-number">1</span>)
-assert.equal(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">&apos;key exists&apos;</span>)
-cartridge.release()
-
-<span class="hljs-keyword">var</span> cartridge = magazine.hold(<span class="hljs-string">&apos;x&apos;</span>, <span class="hljs-number">2</span>)
-assert.equal(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">&apos;key already existed&apos;</span>)
-cartridge.release()
-</code></pre>
-<h3 id="remove">Remove</h3>
-<p>To remove a cartridge from the store you invoke the <code>remove</code> method of the
-cartridge.</p>
-<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> assert = <span class="hljs-built_in">require</span>(<span class="hljs-string">&apos;assert&apos;</span>),
-    Cache = <span class="hljs-built_in">require</span>(<span class="hljs-string">&apos;magazine&apos;</span>)
-
-<span class="hljs-keyword">var</span> cache = <span class="hljs-keyword">new</span> Cache,
-    magazine = cache.createMagazine()
-
-<span class="hljs-keyword">var</span> cartridge = magazine.hold(<span class="hljs-string">&apos;x&apos;</span>, <span class="hljs-number">1</span>)
-assert.equal(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">&apos;key exists&apos;</span>)
-cartridge.release()
-
-magazine.hold(<span class="hljs-string">&apos;x&apos;</span>).remove()
-
-<span class="hljs-keyword">var</span> cartridge = magazine.hold(<span class="hljs-string">&apos;x&apos;</span>, <span class="hljs-number">2</span>)
-assert.equal(cartridge.value, <span class="hljs-number">2</span>, <span class="hljs-string">&apos;key was removed&apos;</span>)
-cartridge.release()
-</code></pre>
-<h3 id="purge">Purge</h3>
-<p>We use a <code>purge</code> iteator to clear the cache of it&apos;s least recently used items. A
-<code>purge</code> iterator iterates over the cartridges in a magazine returning the
-cartridges that have no outstanding holds.</p>
-<p>The <code>purge</code> iterator has a <code>cartridge</code> property that represents the current
-cartridge of the iteration and a <code>next</code> method to go to the next cartridge.
-Before you can call <code>next</code> you must either <code>release</code> or <code>remove</code> the current
-cartridge.</p>
-<p>The <code>purge</code> iterator also has a <code>release</code> method. When you break from a purge
-loop you call teh <code>release</code> method of <code>purge</code> iterator to clean up after purge.
-If the current cartridge is not null, the <code>release</code> method of the cartridge is
-invoked.</p>
-<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> purge = magazine.purge()
-<span class="hljs-keyword">while</span> (purge.cartridge &amp;&amp; magazine.count &lt; <span class="hljs-number">64</span>) {
-    purge.cartridge.release()
-    purge.next()
-}
-purge.release()
-</code></pre>
-<h3 id="authentication-token-cache">Authentication Token Cache</h3>
-<pre><code class="lang-javascript"><span class="hljs-keyword">var</span> magazine = (<span class="hljs-keyword">new</span> Cache).createMagazine()
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">createToken</span> (<span class="hljs-params">clientId</span>) </span>{
-    <span class="hljs-keyword">var</span> hash = crypto.createHash(<span class="hljs-string">&apos;sha1&apos;</span>)
-    hash.update(crypto.randomBytes(<span class="hljs-number">16</span>))
-    <span class="hljs-keyword">var</span> token = hash.digest(<span class="hljs-string">&apos;hex&apos;</span>)
-    magazine.hold(token, clientId).release()
-    <span class="hljs-keyword">return</span> token
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">checkToken</span> (<span class="hljs-params">token</span>) </span>{
-    expireTokens()
-    <span class="hljs-keyword">var</span> clientId, cartridge = magazine.hold(token, <span class="hljs-literal">false</span>)
-    <span class="hljs-keyword">if</span> (clientId = cartridge.value) cartridge.release()
-    <span class="hljs-keyword">else</span> cartridge.remove()
-    <span class="hljs-keyword">return</span> clientId
-}
-
-<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">expireTokens</span> (<span class="hljs-params"></span>) </span>{
-    <span class="hljs-keyword">var</span> purge = magazine.purge()
-    <span class="hljs-keyword">var</span> expired = <span class="hljs-built_in">Date</span>.now() - <span class="hljs-number">1000</span> * <span class="hljs-number">60</span> * <span class="hljs-number">20</span> <span class="hljs-comment">// twenty minutes</span>
-    <span class="hljs-keyword">while</span> (purge.cartridge &amp;&amp; purge.cartridge.when &lt;= expired) {
-        purge.cartridge.release()
-        purge.next()
+    <div class="unit description markdown include" data-file="index.md"><p>Documentation redux.</p>
+<p>Try not to be too ugly.</p>
+<p>Notes:</p>
+<ul>
+<li>There is no way to iterate the collection. It&apos;s always hit or miss.</li>
+<li>There is no peeking or touching.</li>
+<li>Release early and often.</li>
+</ul>
+<p>These notes should be expanded upon and then linked to from the API
+documentation so I don&apos;t have to expound on wider concepts in the API
+documentaion.</p>
+<pre><code class="language-javascript">new Cache</code></pre>
+<p>Create a new empty cache. There are no public constructor parameters.</p>
+<pre><code>cache.count</code></pre><p>The count of entries in the cache.</p>
+<pre><code>cache.heft</code></pre><p>The sum of the <code>heft</code> of each entry in the cache. The <code>heft</code> is the relative
+size of the entry value in relation to other entry values in the cache. It is an
+optional property and only meaningful if you&apos;ve set the <code>heft</code> property of
+individual entries.</p>
+<pre><code class="language-javascript">entry = cache.hold(key)</code></pre>
+<p>Obtain a reference to an entry in the cache. The method will return an <code>Entry</code>
+if one exists for the given <code>key</code> or <code>null</code> if no entry exists.</p>
+<p>The <code>key</code> can be any JSON serializable object. Keys are compared using their
+serialized values and not by object identity. You can use any JSON serializable
+JavaScript type. Any objects in the key the same set of key/value pairs are
+equivalent regardless of insertion order. This insertion order independent
+comparison is obtained by serializing the key using
+<a href="https://github.com/bigeasy/keyify">Keyify</a>.</p>
+<p>If an entry is returned it must be released using <code>release()</code> or removed using
+<code>remove()</code>. Failure to do so will result in memory leaks when the cache is
+unable to evict the entry because it is permenantly referenced.</p>
+<pre><code class="language-javascript">subCache = cache.cache()</code></pre>
+<p>Create a sub-cache that shares the memory pool of this cache but has a different
+set of keys and an independent least-recently used list.</p>
+<p>This allows you share a pool of memory accross sub-systems in your program, but
+have different eviction strategies for different sub-sytems.</p>
+<p>It also allows you to audit reference counting if a sub-system shuts down as
+part of normal operation before program shutdown &#x2014; you can assert that the
+cache for that sub-system is has no referenced entries by evicting down to zero
+using <code>shrink()</code>.</p>
+<p>The parent cache and sub-cache have separate key spaces. Entries added to the
+sub-cache are inaccessible to through parent cache. If you add a key to the
+sub-cache for which there is an entry in the parent cache you will create a new
+separate entry in the sub-cache that is only accessible in the sub-cache.</p>
+<p>And vice-versa. If you add a key to the parent cache for which there is an entry
+in the sub-cache you will create new separate entry in the parent cache that is
+only accessible the parent cache.</p>
+<p>The parent cache eviction methods will iterate over both the parent and child
+cache entries. The child cache eviction methods will iterate only over the
+subset of entries that where added through the child&apos;s <code>hold()</code> method.</p>
+<pre><code class="language-javascript">entry = cache.hold(key, initialValue)</code></pre>
+<p>Obtain a reference to an existing entry in the cache for the given <code>key</code> or
+create a new entry for the <code>key</code> using the given <code>initialValue</code> if an entry does
+not already exist. This get or set behavior is how we resolve race conditions
+when populating the cache.</p>
+<pre><code class="language-javascript">entry = cache.hold(key, initializer, heft)</code></pre>
+<p>Obtain a reference to an existing entry in the cache for the given <code>key</code> or
+create a new entry for the <code>key</code> using the given <code>initialValue</code> and <code>heft</code> if an
+entry does not already exist. This get or set behavior is how we resolve race
+conditions when populating the cache.</p>
+<p>The <code>heft</code> is the relative size of the entry value in relation to other entry
+values in the cache.</p>
+<pre><code class="language-javascript">cache.shrink(count)</code></pre>
+<p>Make a best effort attempt to shrink the <code>cache.count</code> down to the given
+<code>count</code>.</p>
+<p>The <code>shrink()</code> method will iterate through the least-recently used cache entries
+from least-recently used to most-recently used removing entries until the
+desired <code>count</code> is obtained or the first referenced entry is encountered.</p>
+<p>Because we stop when we encounter the first referenced entry, it is important to
+release entries as soon as you&apos;re done with them. If your program holds onto an
+entry indefinately and it does not make any other calls to hold the reference it
+will eventually become both the least-recently used entry and referenced. TODO
+Expound on this and move it up above the API documentation.</p>
+<pre><code class="language-javascript">cache.purge(heft)</code></pre>
+<p>Make a best effort attempt to reduce the <code>cache.heft</code> down to the given <code>heft</code>.</p>
+<p>The <code>shrink()</code> method will iterate through the least-recently used cache entries
+from least-recently used to most-recently used removing entries until the
+desired <code>heft</code> is obtained or the first referenced entry is encountered.</p>
+<p>The sum of the <code>heft</code> of each entry in the cache. The <code>heft</code> is the relative
+size of the entry value in relation to other entry values in the cache. It is an
+optional property and only meaningful if you&apos;ve set the <code>heft</code> property of
+individual entries.</p>
+<pre><code class="language-javascript">cache.every(({ value, heft }) =&gt; {})</code></pre>
+<p>While there is no way to iterate over keys or entries, nor should there be, we
+do provide this dirty little secret for the purposes of asserting the validity
+of your cache.</p>
+<p><code>every</code> accepts a function that receives and object with a <code>value</code> and <code>heft</code>
+parameter for every entry entry in the cache. This is <strong>not</strong> the entry itself.
+Calling <code>release()</code> or <code>remove()</code> is not necessary and indeed, not possible.</p>
+<p>You <strong>should</strong> not use this function to gather up values and you absolutely
+<strong>must</strong> not call <code>cache.hold()</code> from within the callback function. Calling
+<code>cache.hold()</code> will change the least-recently used ordering and likely result in
+an endless loop.</p>
+<pre><code class="language-javascript">const iterator = cache.evictable()
+for (const entry of cache.evictable()) {
+    if (&lt;done condition&gt;) {
+        entry.release()
+        break
     }
-    purge.release()
-}
-</code></pre>
-<h3 id="caches-and-magazines">Caches and Magazines</h3>
-<p>What is the difference beween a <strong>cache</strong> and <strong>magazine</strong>? A cache is a
-collection of one or more magazines. One or more magazines store their data in
-the cache, but they each have their own key namespace.</p>
-<p>You can create many magazines, each with their own key space, but with one
-common least-recently used collection. The application can use different
-magazines as key/value stores, but have a single piont to run the purge of all
-the magazines of a given type.</p>
-<p>Think about how you use JavaScript objects as maps and how cumbersome it would
-be if you were only allowed to do this once per program.</p>
+    entry.remove()
+}</code></pre>
+<p>Returns a custom eviction strategy iterator. The iterator will iterate through
+the cache entries from the least-recently used entry to the most-recently used
+entry stopping ...</p>
+<p>Probably better to just have <code>least()</code>. That&apos;s all we&apos;re doing here and it is
+more explicit.</p>
+<pre><code class="language-javascript">cache.reduce((accumulator, { value, heft }) =&gt; {}, initialValue)</code></pre>
+<p>While there is no way to iterate over keys or entries, nor should there be, we
+do provide this dirty little secret for the purposes of asserting the validity
+of your cache.</p>
+<p><code>reduce</code> accepts a function that receives an <code>accumulator</code> and an object with a
+<code>value</code> and <code>heft</code> parameter for every entry entry in the cache. This is <strong>not</strong>
+the entry itself. Calling <code>release()</code> or <code>remove()</code> is not necessary and indeed,
+not possible. The return value of the callback function is given to the next
+invocation of the callback function. The initial value of the accumulator is
+specified with the <code>initialValue</code> argument. Unlink JavaScript&apos;s
+<code>Array.reduce()</code>, The <code>initialValue</code> argument is required.</p>
+<p>You <strong>should</strong> not use this function to gather up values and you absolutely
+<strong>must</strong> not call <code>cache.hold()</code> from within the callback function. Calling
+<code>cache.hold()</code> will change the least-recently used ordering and likely result in
+an endless loop.</p>
 </div>
   </div>
   <!-- todo: move into an edify plugin-->
@@ -147,5 +144,5 @@ be if you were only allowed to do this once per program.</p>
     ga('create', 'UA-20388260-3', 'bigeasy.github.io');
     ga('send', 'pageview');
   </script>
-</body>
+
 <!-- vim: set ts=2 sw=2 nowrap:-->

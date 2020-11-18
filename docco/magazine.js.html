@@ -156,17 +156,24 @@
     }
 
     purge (heft) {
-        <span class="hljs-keyword">let</span> iterator = <span class="hljs-keyword">this</span>._head._links[<span class="hljs-keyword">this</span>._index].previous
-        <span class="hljs-keyword">while</span> (iterator.cartridge != <span class="hljs-literal">null</span> &amp;&amp; iterator.cartridge._references == <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-keyword">this</span>._heft &gt; heft) {
-            iterator.cartridge._unlink()
-            <span class="hljs-keyword">delete</span> <span class="hljs-keyword">this</span>._cache[iterator.cartridge._keyified]
-            iterator = iterator.previous
-        }
+        <span class="hljs-keyword">this</span>._evict(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>._heft &gt; heft)
     }
 
     shrink (count) {
+        <span class="hljs-keyword">this</span>._evict(<span class="hljs-function"><span class="hljs-params">()</span> =&gt;</span> <span class="hljs-keyword">this</span>.count &gt; count)
+    }
+
+    evict (evict) {
+        <span class="hljs-keyword">this</span>._evict(<span class="hljs-function"><span class="hljs-params">entry</span> =&gt;</span> evict({ <span class="hljs-attr">cache</span>: <span class="hljs-keyword">this</span>, <span class="hljs-attr">value</span>: entry.value, <span class="hljs-attr">heft</span>: entry.heft }))
+    }
+
+    _evict (evict) {
         <span class="hljs-keyword">let</span> iterator = <span class="hljs-keyword">this</span>._head._links[<span class="hljs-keyword">this</span>._index].previous
-        <span class="hljs-keyword">while</span> (iterator.cartridge != <span class="hljs-literal">null</span> &amp;&amp; iterator.cartridge._references == <span class="hljs-number">0</span> &amp;&amp; <span class="hljs-keyword">this</span>.count &gt; count) {
+        <span class="hljs-keyword">while</span> (
+            iterator.cartridge != <span class="hljs-literal">null</span> &amp;&amp;
+            iterator.cartridge._references == <span class="hljs-number">0</span> &amp;&amp;
+            evict(iterator.cartridge)
+        ) {
             iterator.cartridge._unlink()
             <span class="hljs-keyword">delete</span> <span class="hljs-keyword">this</span>._cache[iterator.cartridge._keyified]
             iterator = iterator.previous
@@ -186,6 +193,15 @@
                 <span class="hljs-keyword">return</span> { <span class="hljs-attr">done</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">value</span>: cartridge }
             }
         }
+    }
+
+    least () {
+        <span class="hljs-keyword">const</span> entry = <span class="hljs-keyword">this</span>._head._links[<span class="hljs-keyword">this</span>._index].previous
+        <span class="hljs-keyword">if</span> (previous.cartridge == <span class="hljs-literal">null</span> || previous.cartridge._references != <span class="hljs-number">0</span>) {
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">null</span>
+        }
+        previous.cartridge._references++
+        <span class="hljs-keyword">return</span> previous.cartridge
     }
 
     every (f) {
