@@ -101,17 +101,24 @@ class Magazine {
     }
 
     purge (heft) {
-        let iterator = this._head._links[this._index].previous
-        while (iterator.cartridge != null && iterator.cartridge._references == 0 && this._heft > heft) {
-            iterator.cartridge._unlink()
-            delete this._cache[iterator.cartridge._keyified]
-            iterator = iterator.previous
-        }
+        this._evict(() => this._heft > heft)
     }
 
     shrink (count) {
+        this._evict(() => this.count > count)
+    }
+
+    evict (evict) {
+        this._evict(entry => evict({ cache: this, value: entry.value, heft: entry.heft }))
+    }
+
+    _evict (evict) {
         let iterator = this._head._links[this._index].previous
-        while (iterator.cartridge != null && iterator.cartridge._references == 0 && this.count > count) {
+        while (
+            iterator.cartridge != null &&
+            iterator.cartridge._references == 0 &&
+            evict(iterator.cartridge)
+        ) {
             iterator.cartridge._unlink()
             delete this._cache[iterator.cartridge._keyified]
             iterator = iterator.previous
@@ -131,6 +138,15 @@ class Magazine {
                 return { done: false, value: cartridge }
             }
         }
+    }
+
+    least () {
+        const entry = this._head._links[this._index].previous
+        if (previous.cartridge == null || previous.cartridge._references != 0) {
+            return null
+        }
+        previous.cartridge._references++
+        return previous.cartridge
     }
 
     every (f) {

@@ -472,6 +472,19 @@ require('proof')(66, async okay => {
         return false
     }
 
+    function expireLeast (cache, timeout) {
+        const expired = Date.now() - timeout
+
+        let entry
+        while ((entry = cache.least()) != null) {
+            if (entry.value.when > expired) {
+                entry.release()
+                break
+            }
+            entry.remove()
+        }
+    }
+
     function expire (cache, timeout) {
         const expired = Date.now() - timeout
 
