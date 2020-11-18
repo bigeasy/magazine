@@ -2,7 +2,7 @@
 [![codecov](https://codecov.io/gh/bigeasy/magazine/branch/master/graph/badge.svg)](https://codecov.io/gh/bigeasy/magazine)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A LRU cache.
+A LRU cache for memory paging and content caching.
 
 | What          | Where                                         |
 | --- | --- |
@@ -21,14 +21,155 @@ npm install magazine
 
 # Magazine
 
-Excellent article about Magazine:
+Magazine is a least-recently used cache.
 
-http://francescomari.github.io/2014/06/26/the-magazine-cache.html
+Magazine is designed for use in database implementations where the cached data
+is authorative, representing the latest version of a database page and not
+fleeting, cursory nor readily disposable. This is why Magazine exists and why
+other LRU caches where not fit for this purpose.
 
-Magazine is a least-recently used cache in JavaScript that divides a common
-cache into one or more individual collections.
+Magazine can also be used as generated content cache and will do a fine job.
 
-Here is the basic usage.
+Magazine implements a reference counted cache that controls eviction, provides
+mechanisms for eviction based on object size instead of object count, allows for
+the sub-division of a primary cache into sub-caches. The documentation will
+offer suggestions for concurrent file system programming and file locking using
+Magazine which you might find interesting regardless of whether or not you adopt
+Magazine.
+
+The nicest thing anyone ever said about me on the Internet was this excellent
+artible about
+[Magazine](http://francescomari.github.io/2014/06/26/the-magazine-cache.html),
+however it is sadly out of date now with Magazine 6.0. I've shamelessly borrowed
+from this article in this documentation.
+
+## Magazine as Page Cache
+
+There is a [step-by-step tutorial](x) of Magazine. This is a feature overview
+for evaluation.
+
+```javascript
+const Cache = require('magazine')
+
+// Create a cache.
+const cache = new Cache
+
+// Get a value or set it with a default if it doesn't exist.
+const entry = cache.hold('one', { number: 1, initialized: false })
+
+// Magazine returns an entry, not a value. The value is a property of the entry.
+if (! entry.value.initialized) {
+    entry.value.initialized = true
+}
+
+// Entries are reference counted and cannot be evicted when references are held.
+entry.release()
+
+// Ask the cache to make a best effort to evict entries down to zero.
+cache.shrink(0)
+```
+
+Every entry in a Magazine **cache** is wrapped in an **entry** object. An
+entry represents a piece of data stored in the cache. The entires are added and
+retreived using by a key.
+
+The `hold()` method is used to both and retrieve data. It does double duty
+because we're not just stashing generated content the way we do in a content
+cache. We're storing an authoriative object, one that co-ordinates changes
+accross different asynchronous paths of execution.
+
+But, if you really want to use Magazine as a generated content cache, here you
+go.
+
+```
+const Cache = require('magazine')
+
+// Create a cache.
+const cache = new Cache
+
+// Create a get/put/remove wrapper around the cache.
+const map = new Cache.Map(cache)
+
+// Hmm… Looks like the other LRU caches have expiration methods, so maybe this
+// ought to have one too. Blah. Blah. Okay it will. Let me finish documenting
+// the other usage first.
+async function webGen () {
+    let html = map.get(url)
+    if (html == null) {
+        html = await genreateWebPage()
+        cache.put(url, html)
+    }
+    send(html)
+}
+```
+
+When we call `hold()` we pass an initial empty object. You should provide an
+object that is relatively cheap to construct since it will be discarded if you
+get a cache hit. If you get a cache miss, you can then complete the construction
+of the object.
+
+```
+const cache = new Magazine
+
+async function getPage (path) {
+    const entry = cache.hold(path, { path: path, nodes: null })
+    if (entry.value.nodes == null) {
+        entry.value.nodes = await load(entry.value.path)
+    }
+    return entry
+}
+
+const entry = await getPage('./tree/root')
+
+addKey(entry.value.nodes, 'some key')
+
+entry.release()
+```
+
+In the example above we've implemented a page loading subsystem. A page in a
+database is a file that contains a range of records. `async load()` reads a page
+from the file system and `addKey()` that adds a key to the page.
+
+We try to `hold()` an existing page object. If the `nodes` property of the page
+object is `null`, then we have a newly constructed, uninitialized page. We then
+load the page from the file system into the object.
+
+Our function returns the `entry` and not the entry value because we do not want
+Magazine to evict the page from memory while we're using it. We'll be
+responsible for the entry and release it when we're done using it and it is safe
+to evict it.
+
+Of course, the astute reader will notice a race condition in the example above.
+If `getPage()` is called simultaneously there will be two calls to `load()` that
+are racing to assign the `nodes` property. This is a problem. We are adding a
+key to the `nodes` array, but that array might be reassigned and our node
+addition lost.
+
+Here is a cannonical `getPage()`.
+
+```javascript
+async function getPage (path) {
+    const entry = cache.hold(path)
+    if (entry == null) {
+        const nodes = await load(path)
+        return cache.hold(path, { nodes })
+    }
+    return entry
+}
+```
+
+A key-only call to `hold` returns `null` on a cache miss. If the entry is null
+we load the page. We then add it to the cache using `hold()` which will get an
+existing entry or set it with the initializer. In a race between two simulateous
+calls, both will load the page from file, but only one will be added to the
+cache. Everyone will receive the same entry containing the same nodes array.
+Everyone will see the changes to the nodes array.
+
+Magazine is essentially a key/value store, but it does not operate like `Map`
+with `get` and `put` operations.
+
+Magazine does not provide `get` and `put` methods like a `Map`. Instead it
+provides a `hold()` method that
 
 ```javascript
 // create a cache
