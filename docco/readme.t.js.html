@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Magazine</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <link rel="stylesheet" media="all" href="docco.css" />
+</head>
+<body>
+  <div id="container">
+    <div id="background"></div>
+
+      <ul id="jump_to">
+        <li>
+          <a class="large" href="javascript:void(0);">Jump To &hellip;</a>
+          <a class="small" href="javascript:void(0);">+</a>
+          <div id="jump_wrapper">
+          <div id="jump_page_wrapper">
+            <div id="jump_page">
+
+
+                <a class="source" href="magazine.js.html">
+                  magazine.js
+                </a>
+
+
+                <a class="source" href="readme.t.js.html">
+                  readme.t.js
+                </a>
+
+            </div>
+          </div>
+        </li>
+      </ul>
+
+    <ul class="sections">
+
+
+
+        <li id="section-1">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-1">&#182;</a>
+              </div>
+              <h1 id="magazine">Magazine</h1>
+<p>Magazine is an LRU cache. It was designed to cache database pages. It
+provides a reference counted hold and release mechanism so that the pages
+will not be evicted when they are in use. It can also be used as an
+optimistic memory cache, which is what most of the caches on NPM are, but
+<code>memcached</code> is a better for that sort of thing.</p>
+<p>This unit test represents a tour of Memento and is a stub for some actual
+documentation that I may write someday. It is part of Magazines’s unit test
+suite and lives in the Magazine repository. You can run this readme yourself.</p>
+<pre><code class="language-text">git clone git@github.com:bigeasy/magazine.git
+cd memento
+npm install --no-package-lock --no-save
+node test/readme.t.js</code></pre>
+<p>Note that you should run <code>node test/readme.t.js</code> directly and not <code>npm test</code>
+to see the output from this walk-through.</p>
+<p>This walk-through uses the <a href="https://github.com/bigeasy/proof">Proof</a> unit
+test framework. Proof will setup an <code>async</code> function that will catch and
+report any exceptions. We’ll use Proof’s <code>okay</code> function to assert the points
+we make about Magazine.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-2">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-2">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre><span class="hljs-built_in">require</span>(<span class="hljs-string">'proof'</span>)(<span class="hljs-number">66</span>, <span class="hljs-keyword">async</span> okay =&gt; {</pre></div></div>
+
+        </li>
+
+
+        <li id="section-3">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-3">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-4">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-4">&#182;</a>
+              </div>
+              <p>First we’ll talk about the basics of Magazine. Some of the functionality
+may seem sub-optimal at first, but it will make more sense when we move
+along into practical examples of usage.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-5">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-5">&#182;</a>
+              </div>
+              <p>Next we’ll talk about different eviction strategies.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-6">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-6">&#182;</a>
+              </div>
+              <p>We’ll show some practical examples with some wrapper functions that use
+Magazine as a file cache.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-7">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-7">&#182;</a>
+              </div>
+              <p>We’ll look at how to share a single Magazine across multiple program
+services using sub-caches.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-8">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-8">&#182;</a>
+              </div>
+              <p>We’ll look at how to use Magazine as simple memory cache.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-9">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>There will be some hard and fast rules that you should never break stated
+in the first part of the documentations that we will spend the latter
+half of the documentation breaking.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-10">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>Here we have to use a relative path to <code>require</code> Magazine because we run
+this tutorial as a unit test in the project directory.</p>
+<p>To use <code>Magazine</code> in your application, include it with the following.</p>
+<pre><code class="language-javascript"><span class="hljs-keyword">const</span> Magazine = <span class="hljs-built_in">require</span>(<span class="hljs-string">'magazine'</span>)</code></pre>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-11">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">const</span> Magazine = <span class="hljs-built_in">require</span>(<span class="hljs-string">'..'</span>)</pre></div></div>
+
+        </li>
+
+
+        <li id="section-12">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Magazine stores data as key/value pairs. It provides methods for adding
+cache entries, explicitly removing cache entries by key, and evicting
+stale entries to free up memory.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-13">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>Magazine exports a <code>Magazine</code> object. This is the root of your cache.
+To get started you create a magazine object using the <code>Magazine</code>
+constructor. The <code>Magazine</code> constructor takes no arguments.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-14">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">const</span> magazine = <span class="hljs-keyword">new</span> Magazine</pre></div></div>
+
+        </li>
+
+
+        <li id="section-15">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Now you have an empty <code>Magazine</code>. There should be no items in the
+magazine.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-16">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'empty magazine'</span>)</pre></div></div>
+
+        </li>
+
+
+        <li id="section-17">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-18">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>The cached data is saved in your <code>Magazine</code> instance. The data is stored
+as key value pairs. Every key value pair is wrapped in a <strong>cartridge</strong>
+which acts as slot for a single piece of data.</p>
+<p>You use the <code>hold()</code> function to both add and retreive data from the
+magazine. When adding an item to the cache <code>hold()</code> takes two arguments
+&mdash; a key for the entry and an intial value to use to initialize the
+cartridge <code>value</code> if the entry does not already exist in the cache.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-19">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> cartridge = magazine.hold(<span class="hljs-string">'a'</span>, <span class="hljs-number">1</span>)
+        okay(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">'item initialized'</span>)
+        cartridge.release()
+
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'single item in cache'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-20">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-20">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-21">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-21">&#182;</a>
+              </div>
+              <p>The cartridge is more than a simple wrapper around a key/value pair. It
+has a reference count that represents the number of active holders of the
+item. The magazine uses this to determine if an item can be evicted from
+the cache when it tries to free up memory.</p>
+<p>The magazine needs your help, though. You <strong>must</strong> release the cartridge
+by calling <code>release()</code> when you are done accessing the cached data.</p>
+<p>Once the data is in cache you can retrieve it using <code>hold()</code>. When the
+data already exists in the cache, the magazine will ignore your
+initializtion value because it does not need to create a new cartridge.
+It will return the existing cartridge which will have the current value
+associated with the key.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-22">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> cartridge = magazine.hold(<span class="hljs-string">'a'</span>)
+        okay(!! cartridge, <span class="hljs-string">'item exists'</span>)
+        okay(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">'item existed'</span>)
+        cartridge.release()
+
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'still a single item in cache'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-23">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-24">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> cartridge = magazine.hold(<span class="hljs-string">'a'</span>, <span class="hljs-number">9999</span>)
+        okay(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">'item existed'</span>)
+        cartridge.release()
+
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'still a single item in cache'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-25">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-26">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-26">&#182;</a>
+              </div>
+              <p>Notice that the entry is still in the cache. Releasing the cartridge by
+calling <code>release()</code> does not remove it from the cache, it merely let’s
+the cache know that it <em>could</em> be removed during cache eviction.</p>
+<p>If we only want to retrieve an item with call <code>hold()</code> with a single
+argument,</p>
+<p>Immutability is all the rage in certain circles, but not here. The
+objects in the cache are mutable if you want them to be. You are
+encouraged to change the state of the objects you store in the cache. You
+can even reassign a cache entry value after you’ve created it.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-27">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> <span class="hljs-keyword">set</span> = magazine.hold('b', 2)
+        okay(<span class="hljs-keyword">set</span>.value, 2, 'second item initialized')
+        <span class="hljs-keyword">set</span>.release()
+
+        okay(magazine.count, 2, 'two items in cache')
+
+        const <span class="hljs-keyword">get</span> = magazine.hold('b')
+        okay(<span class="hljs-keyword">get</span>.value, 2, 'second item still <span class="hljs-keyword">set</span>')</pre></div></div>
+
+        </li>
+
+
+        <li id="section-28">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>We changed the value. No big deal.</p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>        <span class="hljs-keyword">get</span>.value = 3
+        <span class="hljs-keyword">get</span>.release()
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-29">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-30">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>In the example above we created a new entry and released it. We then
+retrieved the entry and changed its value. This is perfectly okay if you
+find it useful. Later on we’ll show you how you can use cached objects to
+coordinate concurrent access to the file system.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-31">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Our cache is getting full, isn’t it? We now have two items in the cache.
+We should save some memory by evicting some entries from the cache.
+Before we look at eviction let’s have one last look at our first item.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-32">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> cartridge = magazine.hold(<span class="hljs-string">'a'</span>)
+        okay(cartridge.value, <span class="hljs-number">1</span>, <span class="hljs-string">'item still exists'</span>)
+        cartridge.release()
+
+        okay(magazine.count, <span class="hljs-number">2</span>, <span class="hljs-string">'still a two items in cache'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-33">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-34">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Okay, now we need to make space in memory. Let’s evict some entries using
+the <code>shrink()</code> function. The shrink function takes a single argument
+&mdash; a target count to shrink down to.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-35">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        magazine.shrink(<span class="hljs-number">1</span>)
+
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'one item evicted from the cache'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-36">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-37">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>We’ve now reclaimed memory by shrinking the count of items in the cache
+from 2 items to 1 item. But, which item is was evicted? That would be the
+second item, the one with the key <code>&#39;b&#39;</code>.</p>
+<p>Why did <code>&#39;b&#39;</code> get the boot and and not <code>&#39;a&#39;</code>? Because it was the
+least-recently used entry. Just prior to calling <code>shrink()</code> we held onto
+<code>&#39;a&#39;</code> and released it. When we did that made it the most-recently used
+entry in the cache. <code>&#39;b&#39;</code> became the least recently used entry.</p>
+<p>When you call <code>hold()</code> and <code>release()</code> you increase the priority of the
+entry in the cache. The longer and entry goes without being held, the
+more likely it will be evicted at eviction time.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-38">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> cartridge = magazine.hold(<span class="hljs-string">'a'</span>)
+        okay(!! cartridge, <span class="hljs-string">'frist item exists'</span>)
+        cartridge.release()
+
+        okay(! magazine.hold(<span class="hljs-string">'b'</span>), <span class="hljs-string">'second item does not exist'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-39">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-40">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>Cache eviction is advisory. The cache may not be able to satisfy the
+request because the cache entries are held and in use. If you run an
+eviction with a goal that cannot be satisfied, the eviction does the best
+it can, but it does not raise any errors. Try again later.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-41">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> cartridge = magazine.hold(<span class="hljs-string">'a'</span>)
+        magazine.shrink(<span class="hljs-number">0</span>)
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'did not evict first entry because it is held'</span>)
+        cartridge.release()
+        magazine.shrink(<span class="hljs-number">0</span>)
+        okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'first entry evicted because it is not held'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-42">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-43">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <p>You’re probably wondering why <code>hold()</code> does double duty, both setting
+values and getting values. That’s because when we don’t often simply get
+and put items in a cache from the application. That is, we don’t often
+use the cache as a we would a JavaScript <code>Map</code> getting and putting object
+by key. We are usually checking the cache and then performing an
+asynchronous action if we have a cache miss. That asynchronous action is
+going to lead to race conditions and the <code>hold()</code> function helps us
+resolve those races.</p>
+<p>Let’s use a file cache as an example. Let’s create a sub-system that
+reads files from this here file system.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-44">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p><em>Use the Node.js Promises based file system API.</em></p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">const</span> fs = <span class="hljs-built_in">require</span>(<span class="hljs-string">'fs'</span>).promises</pre></div></div>
+
+        </li>
+
+
+        <li id="section-45">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-46">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">read</span> (<span class="hljs-params">cache, file</span>) </span>{
+        <span class="hljs-keyword">let</span> entry = cache.hold(file), missed = <span class="hljs-literal">false</span>
+        <span class="hljs-keyword">if</span> (entry == <span class="hljs-literal">null</span>) {
+            missed = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">const</span> data = <span class="hljs-keyword">await</span> fs.readFile(file)
+            entry = cache.hold(file, { data, <span class="hljs-attr">viewed</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">liked</span>: <span class="hljs-literal">false</span> })
+        }
+        <span class="hljs-keyword">return</span> { entry, missed }
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-47">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-48">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
+              </div>
+              <p>When we enter the function we try to read the file from the cache. If the
+entry does not exist, then we read from the file system. When our file
+read returns, we add the file data to the cache.</p>
+<p>If you look closely, you can see a data race. The entry has the file data
+but it also has a boolean flag. Because the read is asynchronous, there
+could be two simultaeous reads of the file. The first to complete will
+get the new file object. If the cache simply put the cache values into
+the cache no questions asked then the file read of the second invocation
+returned, the file object would be overwritten. The first caller might be
+changing the flags, but the second caller would have a completely
+different object and would not see the changes.</p>
+<p>Because <code>hold()</code> only creates a new entry if none exists, and returns the
+existing entry, both callers will have the same object. The file read
+from second invocation would not be used and the results of the file read
+are discarded, they are collected by the garbage collector.</p>
+<p>Let’s race our file requests and see that they both return the same
+objects.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-49">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-49">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> promises = [
+            read(magazine, __filename),
+            read(magazine, __filename)
+        ]
+        <span class="hljs-keyword">const</span> first = <span class="hljs-keyword">await</span> promises[<span class="hljs-number">0</span>]
+        first.entry.value.liked = <span class="hljs-literal">true</span>
+
+        <span class="hljs-keyword">const</span> second = <span class="hljs-keyword">await</span> promises[<span class="hljs-number">0</span>]
+        okay([ first.missed, second.missed ], [ <span class="hljs-literal">true</span>, <span class="hljs-literal">true</span> ], <span class="hljs-string">'both missed'</span>)
+        okay(first.entry.value === second.entry.value, <span class="hljs-string">'objects returned are the same'</span>)
+        okay(first.entry.value.liked == second.entry.value.liked, <span class="hljs-string">'objects have same flag values'</span>)
+        first.entry.release()
+        second.entry.release()
+
+        <span class="hljs-keyword">const</span> third = <span class="hljs-keyword">await</span> read(magazine, __filename)
+        okay(! third.missed, <span class="hljs-string">'cache hit'</span>)
+        okay(third.entry.value === first.entry.value, <span class="hljs-string">'cache hit value same as loaded value'</span>)
+        third.entry.release()
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-50">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-51">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
+              </div>
+              <p>Now have look too at what we’re returning. We’re not returning the cached
+value but the cache entry.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-52">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <p>Now that we’re caching files it’s time to revisit our eviction strategy.
+When all the objects in the cache are roughtly the same size, we can
+evict using <code>shrink()</code> to maintain a cache of a certain number of
+objects. We can log the entry count and look at the memory usage of our
+program and know that if we change the maximum cache size memory usage
+will change linearly.</p>
+<p>But now we’re caching files. Some could be small. Some could be big. We
+might say that a cache of 10000 files is the right size when the files
+are 4KB, then someone runs the program to read 1TB files.</p>
+<p>To address this we have the concept of heft. Heft is an approximation of
+the size of an object in the cache. We don’t know the exact size of
+JavaScript object in memory, but sometime we can get an approximate size,
+or at the very least a good indication of the size of an object relative
+to other objects in the cache.</p>
+<p>Let’s rewrite our file system example and use the byte length of the file
+we read as the relative size of the object.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-53">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">heftyRead</span> (<span class="hljs-params">cache, file</span>) </span>{
+        <span class="hljs-keyword">let</span> entry = cache.hold(file), missed = <span class="hljs-literal">false</span>
+        <span class="hljs-keyword">if</span> (entry == <span class="hljs-literal">null</span>) {
+            missed = <span class="hljs-literal">true</span>
+            <span class="hljs-keyword">const</span> data = <span class="hljs-keyword">await</span> fs.readFile(file)</pre></div></div>
+
+        </li>
+
+
+        <li id="section-54">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
+              </div>
+              <p><em>Call hold with a <code>heft</code> parameter.</em></p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>            entry = cache.hold(file, { data, <span class="hljs-attr">viewed</span>: <span class="hljs-literal">false</span>, <span class="hljs-attr">liked</span>: <span class="hljs-literal">false</span> }, data.length)
+        }
+        <span class="hljs-keyword">return</span> { entry, missed }
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-55">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-55">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-56">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-56">&#182;</a>
+              </div>
+              <p>In the function above we call <code>hold</code> with an additional parameter that is
+the relative size of the object in the cache. We pass in the <code>length</code>
+property of the buffer read from the file system. Just like the
+initialization parameter, if the entry already exists in the cache the
+heft is ignored.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-57">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-57">&#182;</a>
+              </div>
+              <p><em>Use the Node.js <code>path</code> module to find another file to read.</em></p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">const</span> path = <span class="hljs-built_in">require</span>(<span class="hljs-string">'path'</span>)
+
+    <span class="hljs-keyword">const</span> files = {
+        <span class="hljs-attr">test</span>: __filename,
+        <span class="hljs-attr">source</span>: path.resolve(__dirname, <span class="hljs-string">'../magazine.js'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-58">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-58">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        okay(magazine.heft, <span class="hljs-number">0</span>, <span class="hljs-string">'cache has no heft'</span>)
+        <span class="hljs-keyword">const</span> { entry, missed } = <span class="hljs-keyword">await</span> heftyRead(magazine, files.source)
+        okay(missed, <span class="hljs-string">'entry was added to cache'</span>)
+        okay(magazine.heft != <span class="hljs-number">0</span>, <span class="hljs-string">'cache has some heft'</span>)
+        entry.release()
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-59">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-59">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-60">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-60">&#182;</a>
+              </div>
+              <p>The <code>heft</code> property of the cache is the sum of the heft of all the
+objects in the cache. In the above example our cache started with no heft
+but after we added an entry with a heft parameter the cache had some
+heft.</p>
+<p>The entry also has a <code>heft</code> property.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-61">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-61">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> source = magazine.hold(files.source)
+        okay(source.heft == source.value.data.length, <span class="hljs-string">'the heft of the entry is the byte length of the file'</span>)
+        source.release()
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-62">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-62">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-63">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-63">&#182;</a>
+              </div>
+              <p>You can adjust the <code>heft</code> property  of an entry. When you do, the <code>heft</code>
+property of cache is updated so that the sum of the heft of all the
+entries in the cache reflects the changes.</p>
+<p>Let’s update the <code>heft</code> property first file we read into the cache.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-64">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-64">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> heft = magazine.heft
+        <span class="hljs-keyword">const</span> test = magazine.hold(files.test)
+        test.heft = test.value.data.length
+        okay(magazine.heft == heft + test.heft, <span class="hljs-string">'the cache heft was updated'</span>)
+        test.release()
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-65">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-65">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-66">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-66">&#182;</a>
+              </div>
+              <p>Note that the <code>heft</code> property of the cache is read-only. You can only
+change the <code>heft</code> property of an entry.</p>
+<p>When we using <code>heft</code> to give us a relative size of objects in the cache,
+we use <code>purge()</code> to evict entries from the cache instead of <code>shrink()</code>.
+<code>purge()</code> evicts entries from the cache down to the desired <code>heft</code>, while
+<code>shrink()</code> evicts entry from the cache down to the desired <code>count</code>.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-67">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-67">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> heft = <span class="hljs-number">1024</span> * <span class="hljs-number">24</span>
+        okay(magazine.heft &gt; heft, <span class="hljs-string">'desired heft not met'</span>)
+        okay(magazine.count, <span class="hljs-number">2</span>, <span class="hljs-string">'two files in the cache'</span>)
+        magazine.purge(heft)
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'one file evicted from the cache'</span>)
+        okay(magazine.heft &lt;= heft, <span class="hljs-string">'desired heft achieved'</span>)
+        okay(! magazine.hold(files.source), <span class="hljs-string">'source file was removed'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-68">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-68">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-69">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-69">&#182;</a>
+              </div>
+              <p>So far we’ve used cache eviction to remove entries from the cache. There
+will be times, however, when we want to explicitly remove a specific item
+from the cache. We can do this using the <code>remove()</code> method of the cache
+entry.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-70">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-70">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'one file left in cache'</span>)
+        <span class="hljs-keyword">const</span> entry = magazine.hold(files.test, <span class="hljs-literal">null</span>)
+        entry.remove()
+        okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'file explicitly removed from cache'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-71">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-71">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-72">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-72">&#182;</a>
+              </div>
+              <p>We held an entry for the remaining file in the cache and then removed it.
+We didn’t have to perform any tests to see if the file was actually
+there. If the file is missing an entry with a <code>null</code> value is created and
+that entry is immediately removed. We can actually do this as a one
+liner.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-73">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-73">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'cache empty'</span>)
+        magazine.hold(files.source, <span class="hljs-literal">null</span>).remove()
+        okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'cache entry added and immediately deleted'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-74">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-74">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-75">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-75">&#182;</a>
+              </div>
+              <p>Magazine also provides and eviction iterator. Using this iterator along
+with <code>remove()</code> you can create your own custom eviction strategy. The
+eviction iterator iterates from the least-recently used entry to the
+most-recently used entry and terminates early when it encoutners and
+entry that is currently held.</p>
+<p>Sometimes you want to evict entries based on the amount of time spent in
+the cache. One common case is when you’re using the cache to store
+authentication tokens that expire after a timeout. We can add a timestamp
+to the entry and use that timestamp to determine if the entry should be
+evicted.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-76">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-76">&#182;</a>
+              </div>
+              <p><em>Use the Node.js <code>crypto</code> API for random bytes.</em></p>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    <span class="hljs-keyword">const</span> crypto = <span class="hljs-built_in">require</span>(<span class="hljs-string">'crypto'</span>)
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">generate</span> (<span class="hljs-params">cache</span>) </span>{
+        <span class="hljs-keyword">const</span> token = crypto.randomBytes(<span class="hljs-number">16</span>).toString(<span class="hljs-string">'hex'</span>)
+        cache.hold(token, { <span class="hljs-attr">when</span>: <span class="hljs-built_in">Date</span>.now() }).release()
+        <span class="hljs-keyword">return</span> token
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">authenticate</span> (<span class="hljs-params">cache, token</span>) </span>{
+        <span class="hljs-keyword">const</span> entry = cache.hold(token)
+        <span class="hljs-keyword">if</span> (entry != <span class="hljs-literal">null</span>) {
+            entry.remove()
+            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>
+    }
+
+    <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">expire</span> (<span class="hljs-params">cache, timeout</span>) </span>{
+        <span class="hljs-keyword">const</span> expired = <span class="hljs-built_in">Date</span>.now() - timeout
+
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> entry <span class="hljs-keyword">of</span> magazine) {
+            <span class="hljs-keyword">if</span> (entry.value.when, expired, entry.value.when &gt; expired) {
+                entry.release()
+                <span class="hljs-keyword">break</span>
+            }
+            entry.remove()
+        }
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-77">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-77">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-78">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-78">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        <span class="hljs-keyword">const</span> tokens = []
+
+        tokens.push(generate(magazine))
+
+        <span class="hljs-keyword">await</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function"><span class="hljs-params">resolve</span> =&gt;</span> setTimeout(resolve, <span class="hljs-number">51</span>))
+
+        tokens.push(generate(magazine))
+
+        okay(magazine.count, <span class="hljs-number">2</span>, <span class="hljs-string">'two tokens in cache'</span>)
+
+        expire(magazine, <span class="hljs-number">50</span>)
+
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'one token expired'</span>)
+
+        okay(! authenticate(magazine, tokens.shift()), <span class="hljs-string">'oldest token is now invalid'</span>)
+        okay(authenticate(magazine, tokens.shift()), <span class="hljs-string">'newest token is still valid'</span>)
+
+        okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'consuming a token deletes it'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-79">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-79">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-80">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-80">&#182;</a>
+              </div>
+              <p>The iterator the entries held but does not update their recently-used
+priority, so iterating entries will not reset change their eviction
+priority.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-81">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-81">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        magazine.hold(<span class="hljs-number">1</span>, <span class="hljs-string">'a'</span>).release()
+        magazine.hold(<span class="hljs-number">2</span>, <span class="hljs-string">'b'</span>).release()
+        magazine.hold(<span class="hljs-number">3</span>, <span class="hljs-string">'c'</span>).release()
+        magazine.hold(<span class="hljs-number">1</span>, <span class="hljs-string">'a'</span>).release()
+
+        <span class="hljs-keyword">const</span> seen = []
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> entry <span class="hljs-keyword">of</span> magazine) {
+            seen.push(entry.value)
+            entry.release()
+        }
+        okay(seen, [ <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span>, <span class="hljs-string">'a'</span> ], <span class="hljs-string">'seen'</span>)
+
+        <span class="hljs-keyword">const</span> entry = magazine.hold(<span class="hljs-number">1</span>)
+
+        seen.length = <span class="hljs-number">0</span>
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> entry <span class="hljs-keyword">of</span> magazine) {
+            seen.push(entry.value)
+            entry.release()
+        }
+        okay(seen, [ <span class="hljs-string">'b'</span>, <span class="hljs-string">'c'</span> ], <span class="hljs-string">'seen'</span>)
+
+        entry.release()
+
+        <span class="hljs-keyword">for</span> (<span class="hljs-keyword">const</span> entry <span class="hljs-keyword">of</span> magazine) {
+            entry.remove()
+        }
+
+        okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'enough of this silliness'</span>)
+    }</pre></div></div>
+
+        </li>
+
+
+        <li id="section-82">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-82">&#182;</a>
+              </div>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-83">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-83">&#182;</a>
+              </div>
+              <p>You can use Magazine to create a root cache with sub-caches. The root
+cache maintains a LRU list across all caches. The sub-caches maintain an
+additional LRU list. Allows your application to share a single cache
+across different concerns, possibly using different eviction stratgies
+for different concerns.</p>
+
+            </div>
+
+        </li>
+
+
+        <li id="section-84">
+            <div class="annotation">
+
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-84">&#182;</a>
+              </div>
+
+            </div>
+
+            <div class="content"><div class='highlight'><pre>    {
+        magazine.hold(<span class="hljs-string">'a'</span>, <span class="hljs-number">1</span>).release()
+        okay(magazine.count, <span class="hljs-number">1</span>, <span class="hljs-string">'parent cache count'</span>)
+
+        <span class="hljs-keyword">const</span> database = magazine.magazine(<span class="hljs-string">'database'</span>)
+
+        database.hold(<span class="hljs-string">'a'</span>, <span class="hljs-number">2</span>).release()
+
+        okay(database.count, <span class="hljs-number">1</span>, <span class="hljs-string">'sub-cache count'</span>)
+        okay(magazine.count, <span class="hljs-number">2</span>, <span class="hljs-string">'parent count now doubled'</span>)
+
+        <span class="hljs-keyword">const</span> parent = magazine.hold(<span class="hljs-string">'a'</span>)
+        <span class="hljs-keyword">const</span> child = database.hold(<span class="hljs-string">'a'</span>)
+
+        okay({
+            <span class="hljs-attr">parent</span>: parent.value,
+            <span class="hljs-attr">child</span>: child.value
+        }, {
+            <span class="hljs-attr">parent</span>: <span class="hljs-number">1</span>,
+            <span class="hljs-attr">child</span>: <span class="hljs-number">2</span>
+        }, <span class="hljs-string">'parent and child values are different for same key'</span>)
+
+        parent.release()
+        child.release()
+
+        database.hold(<span class="hljs-string">'b'</span>, <span class="hljs-number">3</span>).release()
+
+        okay(database.count, <span class="hljs-number">2</span>, <span class="hljs-string">'second item in child'</span>)
+        okay(magazine.count, <span class="hljs-number">3</span>, <span class="hljs-string">'three items in parent'</span>)
+
+        database.shrink(<span class="hljs-number">1</span>)
+
+        okay(database.count, <span class="hljs-number">1</span>, <span class="hljs-string">'child shrunk by one'</span>)
+        okay(magazine.count, <span class="hljs-number">2</span>, <span class="hljs-string">'parent shrunk by one'</span>)
+
+        magazine.shrink(<span class="hljs-number">0</span>)
+
+        okay(database.count, <span class="hljs-number">0</span>, <span class="hljs-string">'child empty'</span>)
+        okay(magazine.count, <span class="hljs-number">0</span>, <span class="hljs-string">'parent empty'</span>)
+    }
+
+    {
+        <span class="hljs-keyword">const</span> map = <span class="hljs-keyword">new</span> Magazine.Map(magazine)
+
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">generate</span> (<span class="hljs-params">cache</span>) </span>{
+            <span class="hljs-keyword">const</span> bytes = crypto.randomBytes(<span class="hljs-number">16</span>).toString(<span class="hljs-string">'hex'</span>)
+            <span class="hljs-keyword">return</span> map.put(bytes, { <span class="hljs-attr">when</span>: <span class="hljs-built_in">Date</span>.now() })
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">autenticate</span> (<span class="hljs-params">cache, token</span>) </span>{
+            <span class="hljs-keyword">return</span> map.remove(token) != <span class="hljs-literal">null</span>
+        }
+
+        <span class="hljs-keyword">const</span> token = generate(magazine)
+        okay(! autenticate(magazine, token), <span class="hljs-string">'okay'</span>)
+    }
+
+    {
+        <span class="hljs-keyword">const</span> map = <span class="hljs-keyword">new</span> Magazine.Map(magazine)
+
+        okay(map.get(<span class="hljs-string">'a'</span>) === <span class="hljs-literal">undefined</span>, <span class="hljs-string">'got missing'</span>)
+        okay(map.get(<span class="hljs-string">'a'</span>, <span class="hljs-number">1</span>), <span class="hljs-number">1</span>, <span class="hljs-string">'get or set'</span>)
+        okay(map.get(<span class="hljs-string">'a'</span>), <span class="hljs-number">1</span>, <span class="hljs-string">'get not missing'</span>)
+        okay(map.put(<span class="hljs-string">'a'</span>, <span class="hljs-number">2</span>), <span class="hljs-number">1</span>, <span class="hljs-string">'put returns previous value'</span>)
+        okay(map.get(<span class="hljs-string">'a'</span>), <span class="hljs-number">2</span>, <span class="hljs-string">'put sets an existing entry'</span>)
+        okay(map.put(<span class="hljs-string">'z'</span>) === <span class="hljs-literal">undefined</span>, <span class="hljs-string">'put returns `undefined` if there is no previous value'</span>)
+        okay(map.remove(<span class="hljs-string">'a'</span>), <span class="hljs-number">2</span>, <span class="hljs-string">'remove returns removed value'</span>)
+        okay(map.remove(<span class="hljs-string">'q'</span>) === <span class="hljs-literal">undefined</span>, <span class="hljs-string">'remove returns `undefined` if the entry does not exist'</span>)
+    }
+
+    {
+        <span class="hljs-keyword">const</span> log = []
+
+        <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">lock</span> (<span class="hljs-params">cache, key</span>) </span>{
+            <span class="hljs-keyword">for</span> (;;) {
+                <span class="hljs-keyword">const</span> entry = cache.hold(key, { <span class="hljs-attr">promise</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">resolve</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">data</span>: <span class="hljs-literal">null</span> })
+                <span class="hljs-keyword">if</span> (entry.value.promise == <span class="hljs-literal">null</span>) {
+                    entry.value.promise = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Promise</span>(<span class="hljs-function"><span class="hljs-params">resolve</span> =&gt;</span> entry.value.resolve = resolve)
+                    <span class="hljs-keyword">return</span> entry
+                }
+                log.push(<span class="hljs-string">'waiting'</span>)
+                <span class="hljs-keyword">await</span> entry.value.promise
+                entry.release()
+            }
+        }
+
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">unlock</span> (<span class="hljs-params">entry</span>) </span>{
+            entry.value.resolve()
+            entry.value.promise = entry.value.resolve = <span class="hljs-literal">null</span>
+            entry.release()
+        }
+
+        <span class="hljs-keyword">const</span> first = <span class="hljs-keyword">await</span> lock(magazine, <span class="hljs-string">'a'</span>)
+        <span class="hljs-keyword">const</span> promise = lock(magazine, <span class="hljs-string">'a'</span>)
+        first.value.data = <span class="hljs-number">1</span>
+        unlock(first)
+        <span class="hljs-keyword">const</span> second = <span class="hljs-keyword">await</span> promise
+        okay(second.value.data, <span class="hljs-number">1</span>, <span class="hljs-string">'guarded data was set'</span>)
+        unlock(second)
+        okay(log, [ <span class="hljs-string">'waiting'</span> ], <span class="hljs-string">'someone had to wait'</span>)
+    }
+})</pre></div></div>
+
+        </li>
+
+    </ul>
+  </div>
+</body>
+</html>
