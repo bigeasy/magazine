@@ -3,10 +3,9 @@
 // Magazine is an LRU cache. It was designed to cache database pages. It
 // provides a reference counted hold and release mechanism so that the pages
 // will not be evicted when they are in use. It can also be used as an
-// optimistic memory cache, which is what most of the caches on NPM are, but
-// `memcached` is a better for that sort of thing.
+// generated content cache, which is what most of the caches on NPM are.
 //
-// This unit test represents a tour of Memento and is a stub for some actual
+// This unit test represents a tour of Magazine and is a stub for some actual
 // documentation that I may write someday. It is part of Magazines's unit test
 // suite and lives in the Magazine repository. You can run this readme yourself.
 //
@@ -41,7 +40,7 @@ require('proof')(66, async okay => {
     // We'll look at how to share a single Magazine across multiple program
     // services using sub-caches.
 
-    // We'll look at how to use Magazine as simple memory cache.
+    // We'll look at how to use Magazine as a generated content cache.
 
     // There will be some hard and fast rules that you should never break stated
     // in the first part of the documentations that we will spend the latter
