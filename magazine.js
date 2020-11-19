@@ -10,7 +10,7 @@ class Magazine {
             this.cache = cache
         }
 
-        get (key, ...vargs) {
+        _get (key, vargs) {
             let got
             if (vargs.length == 0) {
                 const cartridge = this.cache.hold(key)
@@ -27,15 +27,26 @@ class Magazine {
             return got
         }
 
-        put (key, value) {
+        _put (key, value, vargs) {
             let got
             const cartridge = this.cache.hold(key, NULL)
             if (cartridge.value !== NULL) {
                 got = cartridge.value
             }
             cartridge.value = value
+            if (vargs.length == 1) {
+                cartridge.heft = vargs[0]
+            }
             cartridge.release()
             return got
+        }
+
+        get (key, ...vargs) {
+            return this._get(key, vargs)
+        }
+
+        put (key, value, ...vargs) {
+            return this._put(key, value, vargs)
         }
 
         remove (key) {
@@ -46,6 +57,50 @@ class Magazine {
             }
             cartridge.remove()
             return got
+        }
+    }
+
+    static Content = class extends Magazine.Map {
+        constructor () {
+            super()
+        }
+
+        expire (timeout = this.timeout) {
+            const expired = Date.now() - timeout
+            this.cache.expire(({ value }) => value.when < expired)
+        }
+
+        _heft (index) {
+            if (vargs.length < index + 1) {
+                if ('length' in vargs[1]) {
+                    vargs.push(vargs[1].length)
+                } else if ('byteLength' in vargs[1]) {
+                    vargs.push(vargs[1].byteLength)
+                }
+            }
+        }
+
+        _value (value) {
+            return value == null ? null : value.value
+        }
+
+        get (key, ...vargs) {
+            this.expire()
+            if (vargs.length != 0) {
+                vargs[0] = { value: vargs[0], when: Date.now() }
+                this._heft(1, vargs)
+            }
+            return this._value(this._get(key, vargs))
+        }
+
+        put (key, value, ...vargs) {
+            value = { value, when: Date.now() }
+            this._heft(0, vargs)
+            return this._value(this._put(key, value, vargs))
+        }
+
+        remove (key) {
+            return this._value(super.remove(key))
         }
     }
 
