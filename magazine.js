@@ -180,18 +180,16 @@ class Magazine {
         }
     }
 
-    [Symbol.iterator] () {
+    *[Symbol.iterator] () {
         let iterator = this._head._links[this._index].previous
-        return {
-            next () {
-                if (iterator.cartridge == null || iterator.cartridge._references != 0) {
-                    return { done: true, value: null }
-                }
-                const cartridge = iterator.cartridge
-                iterator = iterator.previous
-                cartridge._references++
-                return { done: false, value: cartridge }
+        for (;;) {
+            if (iterator.cartridge == null || iterator.cartridge._references != 0) {
+                break
             }
+            const cartridge = iterator.cartridge
+            iterator = iterator.previous
+            cartridge._references++
+            yield cartridge
         }
     }
 
