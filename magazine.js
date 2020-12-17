@@ -182,10 +182,7 @@ class Magazine {
 
     *[Symbol.iterator] () {
         let iterator = this._head._links[this._index].previous
-        for (;;) {
-            if (iterator.cartridge == null || iterator.cartridge._references != 0) {
-                break
-            }
+        while (iterator.cartridge != null && iterator.cartridge._references == 0) {
             const cartridge = iterator.cartridge
             iterator = iterator.previous
             cartridge._references++
