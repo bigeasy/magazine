@@ -171,7 +171,7 @@ class Magazine {
 
         //
         async shrink (size) {
-            while (this.magazine.count > size) {
+            while (this.magazine.size > size) {
                 const cartridge = this.magazine.least()
                 if (cartridge == null) {
                     break
@@ -215,7 +215,7 @@ class Magazine {
         this._index = path.length - 1
         this._path = path.reverse()
         this.parent = parent
-        this.count = 0
+        this.size = 0
         this._head = new Cartridge(this, null, [], null)
         this._heft = 0
         this._cache = parent != null ? parent._cache : {}
@@ -258,8 +258,8 @@ class Magazine {
         this._evict(() => this._heft > heft)
     }
 
-    shrink (count) {
-        this._evict(() => this.count > count)
+    shrink (size) {
+        this._evict(() => this.size > size)
     }
 
     evict (evict) {
@@ -356,7 +356,7 @@ class Cartridge {
             node.previous = magazine._head._links[i]
             node.next.previous = node
             node.previous.next = node
-            magazine.count++
+            magazine.size++
             magazine._heft += this._heft
         }
     }
@@ -366,7 +366,7 @@ class Cartridge {
             this._links[i].previous.next = this._links[i].next
             this._links[i].next.previous = this._links[i].previous
             const magazine = this.magazine._path[i]
-            magazine.count--
+            magazine.size--
             magazine._heft -= this._heft
         }
     }

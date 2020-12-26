@@ -74,7 +74,7 @@ require('proof')(77, async okay => {
     // magazine.
 
     //
-    okay(magazine.count, 0, 'empty magazine')
+    okay(magazine.size, 0, 'empty magazine')
     //
 
     // The cached data is saved in your `Magazine` instance. The data is stored
@@ -92,7 +92,7 @@ require('proof')(77, async okay => {
         okay(cartridge.value, 1, 'item initialized')
         cartridge.release()
 
-        okay(magazine.count, 1, 'single item in cache')
+        okay(magazine.size, 1, 'single item in cache')
     }
     //
 
@@ -117,7 +117,7 @@ require('proof')(77, async okay => {
         okay(cartridge.value, 1, 'item existed')
         cartridge.release()
 
-        okay(magazine.count, 1, 'still a single item in cache')
+        okay(magazine.size, 1, 'still a single item in cache')
     }
     //
 
@@ -127,7 +127,7 @@ require('proof')(77, async okay => {
         okay(cartridge.value, 1, 'item existed')
         cartridge.release()
 
-        okay(magazine.count, 1, 'still a single item in cache')
+        okay(magazine.size, 1, 'still a single item in cache')
     }
     //
 
@@ -149,7 +149,7 @@ require('proof')(77, async okay => {
         okay(set.value, 2, 'second item initialized')
         set.release()
 
-        okay(magazine.count, 2, 'two items in cache')
+        okay(magazine.size, 2, 'two items in cache')
 
         const get = magazine.hold('b')
         okay(get.value, 2, 'second item still set')
@@ -174,7 +174,7 @@ require('proof')(77, async okay => {
         okay(cartridge.value, 1, 'item still exists')
         cartridge.release()
 
-        okay(magazine.count, 2, 'still a two items in cache')
+        okay(magazine.size, 2, 'still a two items in cache')
     }
     //
 
@@ -186,7 +186,7 @@ require('proof')(77, async okay => {
     {
         magazine.shrink(1)
 
-        okay(magazine.count, 1, 'one item evicted from the cache')
+        okay(magazine.size, 1, 'one item evicted from the cache')
     }
     //
 
@@ -222,10 +222,10 @@ require('proof')(77, async okay => {
     {
         const cartridge = magazine.hold('a')
         magazine.shrink(0)
-        okay(magazine.count, 1, 'did not evict first entry because it is held')
+        okay(magazine.size, 1, 'did not evict first entry because it is held')
         cartridge.release()
         magazine.shrink(0)
-        okay(magazine.count, 0, 'first entry evicted because it is not held')
+        okay(magazine.size, 0, 'first entry evicted because it is not held')
     }
     //
 
@@ -398,16 +398,16 @@ require('proof')(77, async okay => {
     // When we using `heft` to give us a relative size of objects in the cache,
     // we use `purge()` to evict entries from the cache instead of `shrink()`.
     // `purge()` evicts entries from the cache down to the desired `heft`, while
-    // `shrink()` evicts entry from the cache down to the desired `count`.
+    // `shrink()` evicts entry from the cache down to the desired `size`.
 
     //
     {
         const heft = 1024 * 26
         okay(magazine.heft > heft, 'desired heft not met')
-        okay(magazine.count, 2, 'two files in the cache')
+        okay(magazine.size, 2, 'two files in the cache')
         magazine.purge(heft)
         // _Note to self. This test breaks as the `readme.t.js` gets longer.
-        okay(magazine.count, 1, 'one file evicted from the cache')
+        okay(magazine.size, 1, 'one file evicted from the cache')
         okay(magazine.heft <= heft, 'desired heft achieved')
         okay(! magazine.hold(files.source), 'source file was removed')
     }
@@ -420,10 +420,10 @@ require('proof')(77, async okay => {
 
     //
     {
-        okay(magazine.count, 1, 'one file left in cache')
+        okay(magazine.size, 1, 'one file left in cache')
         const entry = magazine.hold(files.test, null)
         entry.remove()
-        okay(magazine.count, 0, 'file explicitly removed from cache')
+        okay(magazine.size, 0, 'file explicitly removed from cache')
     }
     //
 
@@ -435,9 +435,9 @@ require('proof')(77, async okay => {
 
     //
     {
-        okay(magazine.count, 0, 'cache empty')
+        okay(magazine.size, 0, 'cache empty')
         magazine.hold(files.source, null).remove()
-        okay(magazine.count, 0, 'cache entry added and immediately deleted')
+        okay(magazine.size, 0, 'cache entry added and immediately deleted')
     }
     //
 
@@ -509,16 +509,16 @@ require('proof')(77, async okay => {
 
         tokens.push(generate(magazine))
 
-        okay(magazine.count, 2, 'two tokens in cache')
+        okay(magazine.size, 2, 'two tokens in cache')
 
         expire(magazine, 50)
 
-        okay(magazine.count, 1, 'one token expired')
+        okay(magazine.size, 1, 'one token expired')
 
         okay(! authenticate(magazine, tokens.shift()), 'oldest token is now invalid')
         okay(authenticate(magazine, tokens.shift()), 'newest token is still valid')
 
-        okay(magazine.count, 0, 'consuming a token deletes it')
+        okay(magazine.size, 0, 'consuming a token deletes it')
     }
     //
 
@@ -555,7 +555,7 @@ require('proof')(77, async okay => {
             entry.remove()
         }
 
-        okay(magazine.count, 0, 'enough of this silliness')
+        okay(magazine.size, 0, 'enough of this silliness')
     }
     //
 
@@ -568,14 +568,14 @@ require('proof')(77, async okay => {
     //
     {
         magazine.hold('a', 1).release()
-        okay(magazine.count, 1, 'parent cache count')
+        okay(magazine.size, 1, 'parent cache size')
 
         const database = magazine.magazine()
 
         database.hold('a', 2).release()
 
-        okay(database.count, 1, 'sub-cache count')
-        okay(magazine.count, 2, 'parent count now doubled')
+        okay(database.size, 1, 'sub-cache size')
+        okay(magazine.size, 2, 'parent size now doubled')
 
         const parent = magazine.hold('a')
         const child = database.hold('a')
@@ -593,18 +593,18 @@ require('proof')(77, async okay => {
 
         database.hold('b', 3).release()
 
-        okay(database.count, 2, 'second item in child')
-        okay(magazine.count, 3, 'three items in parent')
+        okay(database.size, 2, 'second item in child')
+        okay(magazine.size, 3, 'three items in parent')
 
         database.shrink(1)
 
-        okay(database.count, 1, 'child shrunk by one')
-        okay(magazine.count, 2, 'parent shrunk by one')
+        okay(database.size, 1, 'child shrunk by one')
+        okay(magazine.size, 2, 'parent shrunk by one')
 
         magazine.shrink(0)
 
-        okay(database.count, 0, 'child empty')
-        okay(magazine.count, 0, 'parent empty')
+        okay(database.size, 0, 'child empty')
+        okay(magazine.size, 0, 'parent empty')
     }
 
     {
@@ -708,7 +708,7 @@ require('proof')(77, async okay => {
 
             await openClose.shrink(0)
 
-            okay(openClose.magazine.count, 1, 'not shrunk becasue we still hold a reference')
+            okay(openClose.magazine.size, 1, 'not shrunk becasue we still hold a reference')
 
             got.release()
         }
@@ -721,7 +721,7 @@ require('proof')(77, async okay => {
             got.release()
         }
 
-        okay(openClose.magazine.count, 1, 'one async entry')
+        okay(openClose.magazine.size, 1, 'one async entry')
 
         try {
             await openClose.get(2)
