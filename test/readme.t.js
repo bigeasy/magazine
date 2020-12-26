@@ -25,7 +25,7 @@
 // we make about Magazine.
 
 //
-require('proof')(66, async okay => {
+require('proof')(77, async okay => {
 //
 
     // First we'll talk about the basics of Magazine. Some of the functionality
@@ -402,10 +402,11 @@ require('proof')(66, async okay => {
 
     //
     {
-        const heft = 1024 * 24
+        const heft = 1024 * 26
         okay(magazine.heft > heft, 'desired heft not met')
         okay(magazine.count, 2, 'two files in the cache')
         magazine.purge(heft)
+        // _Note to self. This test breaks as the `readme.t.js` gets longer.
         okay(magazine.count, 1, 'one file evicted from the cache')
         okay(magazine.heft <= heft, 'desired heft achieved')
         okay(! magazine.hold(files.source), 'source file was removed')
@@ -665,5 +666,79 @@ require('proof')(66, async okay => {
         okay(second.value.data, 1, 'guarded data was set')
         unlock(second)
         okay(log, [ 'waiting' ], 'someone had to wait')
+        magazine.shrink(0)
+    }
+
+    {
+        const openings = [{
+            expect: { key: 1, vargs: [ 1 ] }, response: 1, message: 'get race'
+        }, {
+            expect: { key: 1, vargs: [ 2 ] }, response: 2, message: 'get evict race'
+        }, new Error('open') ]
+        const closings = [{
+            expect: { handle: 1 }, message: 'close evict race'
+        }, new Error('close') ]
+        const openClose = new Magazine.OpenClose(magazine, {
+            open: async (key, ...vargs) => {
+                const opening = openings.shift()
+                if (opening instanceof Error) {
+                    throw opening
+                }
+                okay({ key, vargs }, opening.expect, opening.message)
+                return opening.response
+            },
+            close: async handle => {
+                const closing = closings.shift()
+                if (closing instanceof Error) {
+                    throw closing
+                }
+                okay({ handle }, closing.expect, closing.message)
+            }
+        })
+        // Open race.
+        const gots = [ openClose.get(1, 1), openClose.get(1, 2) ]
+        {
+            const got = await gots.shift()
+            okay(got.value, 1, 'got race winner')
+            got.release()
+        }
+        {
+            const got = await gots.shift()
+            okay(got.value, 1, 'got race loser')
+
+            await openClose.shrink(0)
+
+            okay(openClose.magazine.count, 1, 'not shrunk becasue we still hold a reference')
+
+            got.release()
+        }
+        // Evict race.
+        const promises = [ openClose.shrink(0), openClose.get(1, 2) ]
+        await promises.shift()
+        {
+            const got = await promises.shift()
+            okay(got.value, 2, 'entry recreated')
+            got.release()
+        }
+
+        okay(openClose.magazine.count, 1, 'one async entry')
+
+        try {
+            await openClose.get(2)
+        } catch (error) {
+            okay(error.message, 'open', 'open error')
+        }
+
+        try {
+            await openClose.shrink(0)
+        } catch (error) {
+            okay(error.message, 'close', 'close error')
+        }
+
+        try {
+            await openClose.get(1)
+        } catch (error) {
+            okay(error.message, 'invalid handle', 'cache is corrupted')
+        }
     }
 })

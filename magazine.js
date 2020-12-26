@@ -1,3 +1,4 @@
+// One more assertion and I use Interrupt. (Currently, two.)
 const assert = require('assert')
 
 const Keyify = require('keyify')
@@ -104,6 +105,103 @@ class Magazine {
         }
     }
 
+    static OpenClose = class {
+        static _MISSING = Symbol('MISSING')
+
+        static _PRESENT = Symbol('PRESENT')
+
+        constructor (magazine, options) {
+            this.magazine = magazine
+            this._map = new WeakMap
+            this._options = options
+        }
+
+        // If your open function raises an exception no entry will be added to
+        // the cache and the exception will be propagated to the function that
+        // called `get`. You should be sure to do any cleanup in your `open`
+        // function. There will be no way for the `OpenClose` class to call
+        // close for you.
+
+        //
+        async get (key, ...vargs) {
+            for (;;) {
+                const cartridge = this.magazine.hold(key, Magazine.OpenClose._MISSING)
+                if (cartridge.value == Magazine.OpenClose._MISSING) {
+                    cartridge.value = Magazine.OpenClose._PRESENT
+                    let capture
+                    const meta = {
+                        promise: new Promise(resolve => capture = { resolve }),
+                        handle: null,
+                        valid: true
+                    }
+                    this._map.set(cartridge, meta)
+                    try {
+                        cartridge.value = await this.open.apply(this, [ key ].concat(vargs))
+                    } catch (error) {
+                        cartridge.remove()
+                        throw error
+                    } finally {
+                        meta.promise = null
+                        capture.resolve.call(null)
+                    }
+                    return cartridge
+                } else {
+                    const meta = this._map.get(cartridge)
+                    if (meta.promise != null) {
+                        cartridge.release()
+                        await meta.promise
+                    } else {
+                        assert(meta.valid, 'invalid handle')
+                        return cartridge
+                    }
+                }
+            }
+        }
+        //
+
+        // If your close function raises an exception we do not remove the entry
+        // from the cache, we mark it as invalid and we will raise exceptions
+        // until, hopefully, your evil program is destroyed.
+
+        // An excpetion from `close` will be propagated to the function that
+        // called `shrink` so it will unwind the stack, but if you handle the
+        // exception outside of `close` the cache is going to become unusable.
+
+        // This is fine.
+
+        //
+        async shrink (size) {
+            while (this.magazine.count > size) {
+                const cartridge = this.magazine.least()
+                if (cartridge == null) {
+                    break
+                }
+                const meta = this._map.get(cartridge)
+                meta.valid = false
+                let capture
+                meta.promise = new Promise(resolve => capture = { resolve })
+                try {
+                    await this.close(cartridge.value)
+                    cartridge.remove()
+                } catch (error) {
+                    cartridge.release()
+                    throw error
+                } finally {
+                    meta.promise = null
+                    capture.resolve.call(null)
+                }
+            }
+        }
+
+        async open (...vargs) {
+            return this._options.open.apply(null, vargs)
+        }
+
+        async close (handle) {
+            return this._options.close.call(null, handle)
+        }
+    }
+
     constructor (parent = null) {
         const path = [ this ]
         let iterator = parent
@@ -192,7 +290,7 @@ class Magazine {
     }
 
     least () {
-        const entry = this._head._links[this._index].previous
+        const previous = this._head._links[this._index].previous
         if (previous.cartridge == null || previous.cartridge._references != 0) {
             return null
         }
