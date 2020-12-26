@@ -11,7 +11,7 @@
 //
 // ```text
 // git clone git@github.com:bigeasy/magazine.git
-// cd memento
+// cd magazine
 // npm install --no-package-lock --no-save
 // node test/readme.t.js
 // ```
@@ -57,12 +57,12 @@ require('proof')(66, async okay => {
 
     //
     const Magazine = require('..')
+    //
 
     // Magazine stores data as key/value pairs. It provides methods for adding
     // cache entries, explicitly removing cache entries by key, and evicting
     // stale entries to free up memory.
 
-    //
     // Magazine exports a `Magazine` object. This is the root of your cache.
     // To get started you create a magazine object using the `Magazine`
     // constructor. The `Magazine` constructor takes no arguments.

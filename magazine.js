@@ -131,7 +131,7 @@ class Magazine {
     }
 
     cache (key) {
-        this.magazine(key)
+        return this.magazine(key)
     }
 
     hold (key, ...vargs) {
