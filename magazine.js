@@ -104,18 +104,19 @@ class Magazine {
         }
     }
 
-    constructor (parent = null, key = []) {
+    constructor (parent = null) {
         const path = [ this ]
         let iterator = parent
+        this._key = []
+        this._instance = 0
         while (iterator != null) {
+            this._key = [ iterator._instance++ ]
             path.push(iterator)
             iterator = iterator.parent
         }
         this._index = path.length - 1
         this._path = path.reverse()
         this.parent = parent
-        this._key = key
-        this._instance = 0
         this.count = 0
         this._head = new Cartridge(this, null, [], null)
         this._heft = 0
@@ -126,16 +127,16 @@ class Magazine {
         return this._heft
     }
 
-    magazine (key) {
-        return new Magazine(this, this._key.concat(key))
+    magazine () {
+        return new Magazine(this)
     }
 
-    cache (key) {
+    cache () {
         return this.magazine(key)
     }
 
     hold (key, ...vargs) {
-        const qualified = this._key.concat(key)
+        const qualified = [ this._key, key ]
         const keyified = Keyify.stringify(qualified)
         let cartridge = this._cache[keyified]
         if (cartridge == null) {

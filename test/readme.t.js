@@ -569,7 +569,7 @@ require('proof')(66, async okay => {
         magazine.hold('a', 1).release()
         okay(magazine.count, 1, 'parent cache count')
 
-        const database = magazine.magazine('database')
+        const database = magazine.magazine()
 
         database.hold('a', 2).release()
 
