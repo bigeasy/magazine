@@ -25,7 +25,7 @@
 // we make about Magazine.
 
 //
-require('proof')(77, async okay => {
+require('proof')(86, async okay => {
 //
 
     // First we'll talk about the basics of Magazine. Some of the functionality
@@ -402,7 +402,7 @@ require('proof')(77, async okay => {
 
     //
     {
-        const heft = 1024 * 26
+        const heft = 1024 * 28
         okay(magazine.heft > heft, 'desired heft not met')
         okay(magazine.size, 2, 'two files in the cache')
         magazine.purge(heft)
@@ -739,6 +739,54 @@ require('proof')(77, async okay => {
             await openClose.get(1)
         } catch (error) {
             okay(error.message, 'invalid handle', 'cache is corrupted')
+        }
+
+        magazine.shrink(0)
+
+        okay(magazine.size, 0, 'override')
+    }
+
+    {
+        const openings = [{
+            expect: { key: 1, vargs: [ 1 ] }, response: 1, message: 'parent get',
+        }, {
+            expect: { key: 2, vargs: [ 2 ] }, response: 2, message: 'child get'
+        }, new Error('open') ]
+        const closings = [{
+            expect: { handle: 1 }, message: 'evict parent'
+        }, {
+            expect: { handle: 2 }, message: 'evict child'
+        }]
+        const openClose = new Magazine.OpenClose(magazine, {
+            open: async (key, ...vargs) => {
+                const opening = openings.shift()
+                okay({ key, vargs }, opening.expect, opening.message)
+                return opening.response
+            },
+            close: async handle => {
+                const closing = closings.shift()
+                okay({ handle }, closing.expect, closing.message)
+            }
+        })
+
+        const subOpenClose = openClose.openClose()
+        {
+            const got = await openClose.get(1, 1)
+            okay(got.value, 1, 'parent got')
+            got.release()
+        }
+
+        {
+            const got = await subOpenClose.get(2, 2)
+            okay(got.value, 2, 'child got')
+            got.release()
+        }
+
+        okay(subOpenClose.magazine.size, 1, 'child has only one')
+        okay(openClose.magazine.size, 2, 'parent has two')
+
+        {
+            await openClose.shrink(0)
         }
     }
 })

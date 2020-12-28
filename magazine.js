@@ -116,6 +116,12 @@ class Magazine {
             this._options = options
         }
 
+        openClose () {
+            const child = new this.constructor(this.magazine.magazine(), this._options)
+            child._map = this._map
+            return child
+        }
+
         // If your open function raises an exception no entry will be added to
         // the cache and the exception will be propagated to the function that
         // called `get`. You should be sure to do any cleanup in your `open`
@@ -151,7 +157,10 @@ class Magazine {
                         cartridge.release()
                         await meta.promise
                     } else {
-                        assert(meta.valid, 'invalid handle')
+                        if (!meta.valid) {
+                            cartridge.release()
+                            throw new Error('invalid handle')
+                        }
                         return cartridge
                     }
                 }
