@@ -25,7 +25,7 @@
 // we make about Magazine.
 
 //
-require('proof')(86, async okay => {
+require('proof')(87, async okay => {
 //
 
     // First we'll talk about the basics of Magazine. Some of the functionality
@@ -676,7 +676,7 @@ require('proof')(86, async okay => {
             expect: { key: 1, vargs: [ 2 ] }, response: 2, message: 'get evict race'
         }, new Error('open') ]
         const closings = [{
-            expect: { handle: 1 }, message: 'close evict race'
+            expect: { handle: 1, key: 1 }, message: 'close evict race'
         }, new Error('close') ]
         const openClose = new Magazine.OpenClose(magazine, {
             open: async (key, ...vargs) => {
@@ -687,12 +687,12 @@ require('proof')(86, async okay => {
                 okay({ key, vargs }, opening.expect, opening.message)
                 return opening.response
             },
-            close: async handle => {
+            close: async (handle, key) => {
                 const closing = closings.shift()
                 if (closing instanceof Error) {
                     throw closing
                 }
-                okay({ handle }, closing.expect, closing.message)
+                okay({ handle, key }, closing.expect, closing.message)
             }
         })
         // Open race.
@@ -741,7 +741,9 @@ require('proof')(86, async okay => {
             okay(error.message, 'invalid handle', 'cache is corrupted')
         }
 
-        magazine.shrink(0)
+        const errored = openClose.errored()
+        okay(!! errored, 'errored')
+        errored.remove()
 
         okay(magazine.size, 0, 'override')
     }
@@ -769,7 +771,7 @@ require('proof')(86, async okay => {
             }
         })
 
-        const subOpenClose = openClose.openClose()
+        const subOpenClose = openClose.subordinate()
         {
             const got = await openClose.get(1, 1)
             okay(got.value, 1, 'parent got')

@@ -116,10 +116,15 @@ class Magazine {
             this._options = options
         }
 
-        openClose () {
-            const child = new this.constructor(this.magazine.magazine(), this._options)
-            child._map = this._map
-            return child
+        subordinate () {
+            return this._subordinate((magazine, options) => new Magazine.OpenClose(magazine, options))
+        }
+
+        _subordinate (constructor) {
+            const openClose = constructor(this.magazine.magazine(), this._options)
+            assert(openClose instanceof Magazine.OpenClose)
+            openClose._map = this._map
+            return openClose
         }
 
         // If your open function raises an exception no entry will be added to
@@ -190,7 +195,7 @@ class Magazine {
                 let capture
                 meta.promise = new Promise(resolve => capture = { resolve })
                 try {
-                    await this.close(cartridge.value)
+                    await this.close(cartridge.value, cartridge.key)
                     cartridge.remove()
                 } catch (error) {
                     cartridge.release()
@@ -202,12 +207,24 @@ class Magazine {
             }
         }
 
+        errored () {
+            const cartridge = this.magazine.least()
+            if (cartridge == null) {
+                return null
+            }
+            if (cartridge.valid) {
+                cartridge.release()
+                return null
+            }
+            return cartridge
+        }
+
         async open (...vargs) {
             return this._options.open.apply(null, vargs)
         }
 
-        async close (handle) {
-            return this._options.close.call(null, handle)
+        async close (handle, key) {
+            return this._options.close.call(null, handle, key)
         }
     }
 
@@ -250,7 +267,7 @@ class Magazine {
             if (vargs.length == 0) {
                 return null
             }
-            this._cache[keyified] = cartridge = new Cartridge(this, keyified, qualified, vargs[0])
+            this._cache[keyified] = cartridge = new Cartridge(this, keyified, key, vargs[0])
             cartridge._link()
             if (vargs.length == 2) {
                 cartridge.heft = vargs[1]
@@ -328,10 +345,10 @@ class Magazine {
 }
 
 class Cartridge {
-    constructor (magazine, keyified, qualified, value) {
+    constructor (magazine, keyified, key, value) {
         this.magazine = magazine
         this._keyified = keyified
-        this.qualified = qualified
+        this.key = key
         this.value = value
         this._references = 0
         this._links = []
