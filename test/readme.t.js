@@ -570,7 +570,7 @@ require('proof')(87, async okay => {
         magazine.hold('a', 1).release()
         okay(magazine.size, 1, 'parent cache size')
 
-        const database = magazine.magazine()
+        const database = magazine.subordinate()
 
         database.hold('a', 2).release()
 

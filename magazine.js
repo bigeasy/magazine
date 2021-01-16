@@ -121,7 +121,7 @@ class Magazine {
         }
 
         _subordinate (constructor) {
-            const openClose = constructor(this.magazine.magazine(), this._options)
+            const openClose = constructor(this.magazine.subordinate(), this._options)
             assert(openClose instanceof Magazine.OpenClose)
             openClose._map = this._map
             return openClose
@@ -251,12 +251,8 @@ class Magazine {
         return this._heft
     }
 
-    magazine () {
+    subordinate () {
         return new Magazine(this)
-    }
-
-    cache () {
-        return this.magazine(key)
     }
 
     hold (key, ...vargs) {
