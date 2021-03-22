@@ -3,7 +3,7 @@
     "version":              "6.0.0-alpha.6",
     "description":
 
-      "A collective least-recently used cache.",
+      "A LRU cache for memory paging and content caching.",
 
     "keywords":
     [
