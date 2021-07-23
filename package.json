@@ -21,7 +21,7 @@
     },
     "dependencies":
     {
-                            "keyify":                       "^2.0.5"
+                            "keyify":                       "^3.0.0"
     },
     "devDependencies":
     {
